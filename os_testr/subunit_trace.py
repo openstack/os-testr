@@ -28,6 +28,13 @@ import sys
 import subunit
 import testtools
 
+# NOTE(mtreinish) on python3 anydbm was renamed dbm and the python2 dbm module
+# was renamed to dbm.ndbm, this block takes that into account
+try:
+    import anydbm as dbm
+except ImportError:
+    import dbm
+
 DAY_SECONDS = 60 * 60 * 24
 FAILS = []
 RESULTS = {}
@@ -116,7 +123,24 @@ def print_attachments(stream, test, all_channels=False):
                 stream.write("    %s\n" % line)
 
 
-def show_outcome(stream, test, print_failures=False, failonly=False):
+def find_test_run_time_diff(test_id, run_time):
+    times_db_path = os.path.join(os.path.join(os.getcwd(), '.testrepository'),
+                                 'times.dbm')
+    if os.path.isfile(times_db_path):
+        try:
+            test_times = dbm.open(times_db_path)
+        except Exception:
+            return False
+        avg_runtime = float(test_times.get(str(test_id), False))
+        if avg_runtime and avg_runtime > 0:
+            run_time = float(run_time.rstrip('s'))
+            perc_diff = ((run_time - avg_runtime) / avg_runtime) * 100
+            return perc_diff
+    return False
+
+
+def show_outcome(stream, test, print_failures=False, failonly=False,
+                 threshold='0'):
     global RESULTS
     status = test['status']
     # TODO(sdague): ask lifeless why on this?
@@ -143,8 +167,14 @@ def show_outcome(stream, test, print_failures=False, failonly=False):
             print_attachments(stream, test, all_channels=True)
     elif not failonly:
         if status == 'success':
-            stream.write('{%s} %s [%s] ... ok\n' % (
-                worker, name, duration))
+            out_string = '{%s} %s [%s' % (worker, name, duration)
+            perc_diff = find_test_run_time_diff(test['id'], duration)
+            if perc_diff and abs(perc_diff) >= abs(float(threshold)):
+                if perc_diff > 0:
+                    out_string = out_string + ' +%.2f%%' % perc_diff
+                else:
+                    out_string = out_string + ' %.2f%%' % perc_diff
+            stream.write(out_string + '] ... ok\n')
             print_attachments(stream, test)
         elif status == 'skip':
             stream.write('{%s} %s ... SKIPPED: %s\n' % (
@@ -241,6 +271,10 @@ def parse_args():
                         default=(
                             os.environ.get('TRACE_FAILONLY', False)
                             is not False))
+    parser.add_argument('--diff-threshold', '-t', dest='threshold',
+                        help="Threshold to use for displaying percent change "
+                             "from the avg run time. If one is not specified "
+                             "the percent change will always be displayed")
     return parser.parse_args()
 
 
