@@ -135,7 +135,7 @@ def main():
         exit(3)
     exclude_regex = construct_regex(opts.blacklist_file, opts.regex)
     if not os.path.isdir('.testrepository'):
-        subprocess.call('testr init')
+        subprocess.call(['testr', 'init'])
     if not opts.no_discover and not opts.pdb:
         exit(call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest))
