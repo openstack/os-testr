@@ -31,9 +31,11 @@ def parse_args():
                              'file is specified, the regex will be appended '
                              'to the end of the generated regex from that '
                              'file')
-    parser.add_argument('--pretty', '-p', default=True,
+    parser.add_argument('--pretty', '-p', dest='pretty', action='store_true',
                         help='Print pretty output from subunit-trace. This is '
                              'mutually exclusive with --subunit')
+    parser.add_argument('--no-pretty', dest='pretty', action='store_false',
+                        help='Disable the pretty output with subunit-trace')
     parser.add_argument('--subunit', '-s', action='store_true',
                         help='output the raw subunit v2 from the test run '
                              'this is mutuall exclusive with --pretty')
@@ -42,10 +44,14 @@ def parse_args():
     parser.add_argument('--no-discover', '-n',
                         help="Takes in a single test to bypasses test "
                              "discover and just excute the test specified")
-    parser.add_argument('--slowest', default=True,
+    parser.add_argument('--slowest', dest='slowest', action='store_true',
                         help="after the test run print the slowest tests")
+    parser.add_argument('--no-slowest', dest='slowest', action='store_false',
+                        help="after the test run don't print the slowest "
+                             "tests")
     parser.add_argument('--pdb',
                         help='Run a single test that has pdb traces added')
+    parser.set_defaults(pretty=True, slowest=True)
     opts = parser.parse_args()
     return opts
 
