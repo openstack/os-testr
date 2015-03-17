@@ -13,11 +13,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
 import copy
 import os
 import subprocess
+import sys
 
-import argparse
+from subunit import run as subunit_run
+from testtools import run as testtools_run
 
 
 def parse_args():
@@ -108,28 +111,24 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur):
     return return_code
 
 
-def call_subunit_run(test_id, pretty):
-    cmd = ['python', '-m', 'subunit.run', test_id]
-    env = copy.deepcopy(os.environ)
+def call_subunit_run(test_id, pretty, subunit):
     if pretty:
+        env = copy.deepcopy(os.environ)
+        cmd = ['python', '-m', 'subunit.run', test_id]
         ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
         proc = subprocess.Popen(['subunit-trace', '--no-failure-debug', '-f'],
                                 env=env, stdin=ps.stdout)
         ps.stdout.close()
+        proc.communicate()
+        return proc.returncode
+    elif subunit:
+        subunit_run.main([sys.argv[0], test_id], sys.stdout)
     else:
-        proc = subprocess.Popen(cmd, env=env)
-    proc.communicate()
-    return_code = proc.returncode
-    return return_code
+        testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
 def call_testtools_run(test_id):
-    cmd = ['python', '-m', 'testtools.run', test_id]
-    env = copy.deepcopy(os.environ)
-    proc = subprocess.Popen(cmd, env=env)
-    proc.communicate()
-    return_code = proc.returncode
-    return return_code
+    testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
 def main():
@@ -157,7 +156,7 @@ def main():
     elif opts.pdb:
         exit(call_testtools_run(opts.pdb))
     else:
-        exit(call_subunit_run(opts.no_discover, opts.pretty))
+        exit(call_subunit_run(opts.no_discover, opts.pretty, opts.subunit))
 
 if __name__ == '__main__':
     main()
