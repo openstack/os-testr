@@ -41,7 +41,7 @@ def parse_args():
                              'this is mutuall exclusive with --pretty')
     parser.add_argument('--list', '-l', action='store_true',
                         help='List all the tests which will be run.')
-    parser.add_argument('--no-discover', '-n',
+    parser.add_argument('--no-discover', '-n', metavar='TEST_ID',
                         help="Takes in a single test to bypasses test "
                              "discover and just excute the test specified")
     parser.add_argument('--slowest', dest='slowest', action='store_true',
@@ -49,9 +49,16 @@ def parse_args():
     parser.add_argument('--no-slowest', dest='slowest', action='store_false',
                         help="after the test run don't print the slowest "
                              "tests")
-    parser.add_argument('--pdb',
+    parser.add_argument('--pdb', metavar='TEST_ID',
                         help='Run a single test that has pdb traces added')
-    parser.set_defaults(pretty=True, slowest=True)
+    parser.add_argument('--parallel', dest='parallel', action='store_true',
+                        help='Run tests in parallel (this is the default)')
+    parser.add_argument('--serial', dest='parallel', action='store_false',
+                        help='Run tests serially')
+    parser.add_argument('--concurrency', '-c', type=int, metavar='WORKERS',
+                        help='The number of workers to use when running in '
+                             'parallel. By default this is the number of cpus')
+    parser.set_defaults(pretty=True, slowest=True, parallel=True)
     opts = parser.parse_args()
     return opts
 
@@ -72,9 +79,13 @@ def construct_regex(blacklist_file, regex):
     return exclude_regex
 
 
-def call_testr(regex, subunit, pretty, list_tests, slowest):
-    cmd = ['testr', 'run', '--parallel']
-
+def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur):
+    if parallel:
+        cmd = ['testr', 'run', '--parallel']
+        if concur:
+            cmd.append('--concurrency=%s' % concur)
+    else:
+        cmd = ['testr', 'run']
     if list_tests:
         cmd = ['testr', 'list-tests']
     elif subunit or pretty:
@@ -133,12 +144,16 @@ def main():
                'run a single test')
         print(msg)
         exit(3)
+    if not opts.parallel and opts.concurrency:
+        msg = "You can't specify a concurrency to use when running serially"
+        print(msg)
+        exit(4)
     exclude_regex = construct_regex(opts.blacklist_file, opts.regex)
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
     if not opts.no_discover and not opts.pdb:
         exit(call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
-                        opts.slowest))
+                        opts.slowest, opts.parallel, opts.concurrency))
     elif opts.pdb:
         exit(call_testtools_run(opts.pdb))
     else:
