@@ -16,7 +16,6 @@
 import copy
 import os
 import subprocess
-import sys
 
 import argparse
 
@@ -106,6 +105,7 @@ def call_subunit_run(test_id, pretty):
     return_code = proc.returncode
     return return_code
 
+
 def call_testtools_run(test_id):
     cmd = ['python', '-m', 'testtools.run', test_id]
     env = copy.deepcopy(os.environ)
@@ -113,6 +113,7 @@ def call_testtools_run(test_id):
     proc.communicate()
     return_code = proc.returncode
     return return_code
+
 
 def main():
     opts = parse_args()
