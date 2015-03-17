@@ -45,6 +45,8 @@ def parse_args():
                              "discover and just excute the test specified")
     parser.add_argument('--slowest', default=True,
                         help="after the test run print the slowest tests")
+    parser.add_argument('--pdb',
+                        help='Run a single test that has pdb traces added')
     opts = parser.parse_args()
     return opts
 
@@ -99,10 +101,15 @@ def call_subunit_run(test_id, pretty):
         ps.stdout.close()
     else:
         proc = subprocess.Popen(cmd, env=env)
-    proc = subprocess.Popen(cmd)
     return_code = proc.communicate()[0]
     return return_code
 
+def call_testtools_run(test_id):
+    cmd = ['python', '-m', 'testtools.run', test_id]
+    env = copy.deepcopy(os.environ)
+    proc = subprocess.Popen(cmd, env=env)
+    return_code = proc.communicate()[0]
+    return return_code
 
 def main():
     opts = parse_args()
@@ -119,9 +126,11 @@ def main():
     exclude_regex = construct_regex(opts.blacklist_file, opts.regex)
     if not os.path.isdir('.testrepository'):
         subprocess.call('testr init')
-    if not opts.no_discover:
+    if not opts.no_discover and not opts.pdb:
         exit(call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest))
+    elif opts.pdb:
+        exit(call_testtools_run(opts.pdb))
     else:
         exit(call_subunit_run(opts.no_discover, opts.pretty))
 
