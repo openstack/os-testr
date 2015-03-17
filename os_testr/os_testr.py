@@ -83,7 +83,8 @@ def call_testr(regex, subunit, pretty, list_tests, slowest):
         ps.stdout.close()
     else:
         proc = subprocess.Popen(cmd, env=env)
-    return_code = proc.communicate()[0]
+    proc.communicate()
+    return_code = proc.returncode
     if slowest and not list_tests:
         print("\nSlowest Tests:\n")
         slow_proc = subprocess.Popen(['testr', 'slowest'], env=env)
@@ -101,14 +102,16 @@ def call_subunit_run(test_id, pretty):
         ps.stdout.close()
     else:
         proc = subprocess.Popen(cmd, env=env)
-    return_code = proc.communicate()[0]
+    proc.communicate()
+    return_code = proc.returncode
     return return_code
 
 def call_testtools_run(test_id):
     cmd = ['python', '-m', 'testtools.run', test_id]
     env = copy.deepcopy(os.environ)
     proc = subprocess.Popen(cmd, env=env)
-    return_code = proc.communicate()[0]
+    proc.communicate()
+    return_code = proc.returncode
     return return_code
 
 def main():
