@@ -275,6 +275,9 @@ def parse_args():
                         help="Threshold to use for displaying percent change "
                              "from the avg run time. If one is not specified "
                              "the percent change will always be displayed")
+    parser.add_argument('--no-summary', action='store_true',
+                        help="Don't print the summary of the test run after "
+                             " completes")
     return parser.parse_args()
 
 
@@ -305,7 +308,8 @@ def main():
         exit(1)
     if args.post_fails:
         print_fails(sys.stdout)
-    print_summary(sys.stdout, elapsed_time)
+    if not args.no_summary:
+        print_summary(sys.stdout, elapsed_time)
     exit(0 if summary.wasSuccessful() else 1)
 
 

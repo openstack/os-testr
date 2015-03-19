@@ -61,6 +61,11 @@ def parse_args():
     parser.add_argument('--concurrency', '-c', type=int, metavar='WORKERS',
                         help='The number of workers to use when running in '
                              'parallel. By default this is the number of cpus')
+    parser.add_argument('--until-failure', action='store_true',
+                        help='Run the tests in a loop until a failure is '
+                             'encountered. Running with subunit or pretty'
+                             'output enable will force the loop to run tests'
+                             'serially')
     parser.set_defaults(pretty=True, slowest=True, parallel=True)
     opts = parser.parse_args()
     return opts
@@ -82,7 +87,8 @@ def construct_regex(blacklist_file, regex):
     return exclude_regex
 
 
-def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur):
+def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
+               until_failure):
     if parallel:
         cmd = ['testr', 'run', '--parallel']
         if concur:
@@ -91,11 +97,71 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur):
         cmd = ['testr', 'run']
     if list_tests:
         cmd = ['testr', 'list-tests']
-    elif subunit or pretty:
+    elif (subunit or pretty) and not until_failure:
         cmd.append('--subunit')
+    elif not (subunit or pretty) and until_failure:
+        cmd.append('--until-failure')
     cmd.append(regex)
     env = copy.deepcopy(os.environ)
-    if pretty and not list_tests:
+    # This workaround is necessary because of lp bug 1411804 it's super hacky
+    # and makes tons of unfounded assumptions, but it works for the most part
+    if (subunit or pretty) and until_failure:
+        proc = subprocess.Popen(['testr', 'list-tests', regex], env=env,
+                                stdout=subprocess.PIPE)
+        out = proc.communicate()[0]
+        raw_test_list = out.split('\n')
+        bad = False
+        test_list = []
+        exclude_list = ['CAPTURE', 'TEST_TIMEOUT', 'PYTHON',
+                        'subunit.run discover']
+        for line in raw_test_list:
+            for exclude in exclude_list:
+                if exclude in line:
+                    bad = True
+                    break
+                elif not line:
+                    bad = True
+                    break
+            if not bad:
+                test_list.append(line)
+            bad = False
+        count = 0
+        failed = False
+        if not test_list:
+            print("No tests to run")
+            exit(1)
+        # If pretty or subunit output is desired manually loop forever over
+        # test individually and generate the desired output in a linear series
+        # this avoids 1411804 while retaining most of the desired behavior
+        while True:
+            for test in test_list:
+                if pretty:
+                    cmd = ['python', '-m', 'subunit.run', test]
+                    ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
+                    proc = subprocess.Popen(['subunit-trace',
+                                             '--no-failure-debug',
+                                             '--no-summary'], env=env,
+                                            stdin=ps.stdout)
+                    ps.stdout.close()
+                    proc.communicate()
+                    if proc.returncode > 0:
+                        failed = True
+                        break
+                else:
+                    try:
+                        subunit_run.main([sys.argv[0], test], sys.stdout)
+                    except SystemExit as e:
+                        if e > 0:
+                            print("Ran %s tests without failure" % count)
+                            exit(1)
+                        else:
+                            raise
+                count = count + 1
+            if failed:
+                print("Ran %s tests without failure" % count)
+                exit(0)
+    # If not until-failure special case call testr like normal
+    elif pretty and not list_tests:
         ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
         proc = subprocess.Popen(['subunit-trace', '--no-failure-debug', '-f'],
                                 env=env, stdin=ps.stdout)
@@ -147,12 +213,17 @@ def main():
         msg = "You can't specify a concurrency to use when running serially"
         print(msg)
         exit(4)
+    if (opts.pdb or opts.no_discover) and opts.until_failure:
+        msg = "You can not use until_failure mode with pdb or no-discover"
+        print(msg)
+        exit(5)
     exclude_regex = construct_regex(opts.blacklist_file, opts.regex)
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
     if not opts.no_discover and not opts.pdb:
         exit(call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
-                        opts.slowest, opts.parallel, opts.concurrency))
+                        opts.slowest, opts.parallel, opts.concurrency,
+                        opts.until_failure))
     elif opts.pdb:
         exit(call_testtools_run(opts.pdb))
     else:
