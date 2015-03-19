@@ -139,7 +139,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                     cmd = ['python', '-m', 'subunit.run', test]
                     ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
                     proc = subprocess.Popen(['subunit-trace',
-                                             '--no-failure-debug',
+                                             '--no-failure-debug', '-f',
                                              '--no-summary'], env=env,
                                             stdin=ps.stdout)
                     ps.stdout.close()
