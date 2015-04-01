@@ -12,4 +12,15 @@ A testr wrapper to provide functionality for OpenStack projects
 Features
 --------
 
-* TODO
+* ostestr: a testr wrapper that uses subunit-trace for output and builds some
+           helpful extra functionality around testr
+* subunit-trace: an output filter for a subunit stream which provides useful
+                 information about the run
+* subunit2html: generates a test results html page from a subunit stream
+
+Release Notes
+=============
+
+0.1.0
+-----
+ * First release which includes: ostestr, subunit-trace, and subunit2html
