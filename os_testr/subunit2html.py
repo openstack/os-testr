@@ -1,4 +1,18 @@
 #!/usr/bin/python
+#
+# Copyright 2012-2013 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
 """
 Utility to convert a subunit stream to an html results file.
 Code is adapted from the pyunit Html test runner at
@@ -53,8 +67,7 @@ __version__ = '0.1'
 
 
 class TemplateData(object):
-    """
-    Define a HTML template for report customerization and generation.
+    """Define a HTML template for report customerization and generation.
 
     Overall structure of an HTML report
 
@@ -472,9 +485,9 @@ class HtmlOutput(testtools.TestResult):
         if output is None:
             output = test.id()
         # Skipped tests are handled by SkipTest Exceptions.
-        #if err[0] == SkipTest:
-        #    self.skip_count += 1
-        #    self.result.append((3, test, output, ''))
+        # if err[0] == SkipTest:
+        #     self.skip_count += 1
+        #     self.result.append((3, test, output, ''))
         else:
             self.error_count += 1
             _exc_str = self.formatErr(err)
@@ -619,7 +632,6 @@ class HtmlOutput(testtools.TestResult):
         if hasattr(test, 'test'):
             test = test.test
         if test.__class__ == subunit.RemotedTestCase:
-            #print(test._RemotedTestCase__description.rsplit('.', 1)[0])
             cl = test._RemotedTestCase__description.rsplit('.', 1)[0]
             mod = cl.rsplit('.', 1)[0]
             cls = ClassInfoWrapper(cl, mod)
