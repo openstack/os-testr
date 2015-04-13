@@ -66,20 +66,69 @@ def parse_args():
                              'encountered. Running with subunit or pretty'
                              'output enable will force the loop to run tests'
                              'serially')
+    parser.add_argument('--print-exclude', action='store_true',
+                        help='If an exclude file is used this option will '
+                             'prints the comment from the same line and all '
+                             'skipped tests before the test run')
     parser.set_defaults(pretty=True, slowest=True, parallel=True)
     opts = parser.parse_args()
     return opts
 
 
-def construct_regex(blacklist_file, regex):
+def _get_test_list(regex, env=None):
+    env = env or copy.deepcopy(os.environ)
+    proc = subprocess.Popen(['testr', 'list-tests', regex], env=env,
+                            stdout=subprocess.PIPE)
+    out = proc.communicate()[0]
+    raw_test_list = out.split('\n')
+    bad = False
+    test_list = []
+    exclude_list = ['OS_', 'CAPTURE', 'TEST_TIMEOUT', 'PYTHON',
+                    'subunit.run discover']
+    for line in raw_test_list:
+        for exclude in exclude_list:
+            if exclude in line:
+                bad = True
+                break
+            elif not line:
+                bad = True
+                break
+        if not bad:
+            test_list.append(line)
+        bad = False
+    return test_list
+
+
+def print_skips(regex, message):
+    test_list = _get_test_list(regex)
+    if test_list:
+        if message:
+            print(message)
+        else:
+            print('Skipped because of regex %s:' % regex)
+        for test in test_list:
+            print(test)
+        # Extra whitespace to separate
+        print('\n')
+
+
+def construct_regex(blacklist_file, regex, print_exclude):
     if not blacklist_file:
         exclude_regex = ''
     else:
         black_file = open(blacklist_file, 'r')
         exclude_regex = ''
         for line in black_file:
-            regex = line.strip()
-            exclude_regex = '|'.join([regex, exclude_regex])
+            raw_line = line.strip()
+            split_line = raw_line.split('#')
+            # Before the # is the regex
+            regex = split_line[0].strip()
+            # After the # is a comment
+            comment = split_line[1].strip()
+            if regex:
+                if print_exclude:
+                    print_skips(regex, comment)
+                exclude_regex = '|'.join([regex, exclude_regex])
         if exclude_regex:
             exclude_regex = "'(?!.*" + exclude_regex + ")"
     if regex:
@@ -106,25 +155,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
     # This workaround is necessary because of lp bug 1411804 it's super hacky
     # and makes tons of unfounded assumptions, but it works for the most part
     if (subunit or pretty) and until_failure:
-        proc = subprocess.Popen(['testr', 'list-tests', regex], env=env,
-                                stdout=subprocess.PIPE)
-        out = proc.communicate()[0]
-        raw_test_list = out.split('\n')
-        bad = False
-        test_list = []
-        exclude_list = ['CAPTURE', 'TEST_TIMEOUT', 'PYTHON',
-                        'subunit.run discover']
-        for line in raw_test_list:
-            for exclude in exclude_list:
-                if exclude in line:
-                    bad = True
-                    break
-                elif not line:
-                    bad = True
-                    break
-            if not bad:
-                test_list.append(line)
-            bad = False
+        test_list = _get_test_list(regex, env)
         count = 0
         failed = False
         if not test_list:
@@ -217,7 +248,8 @@ def main():
         msg = "You can not use until_failure mode with pdb or no-discover"
         print(msg)
         exit(5)
-    exclude_regex = construct_regex(opts.blacklist_file, opts.regex)
+    exclude_regex = construct_regex(opts.blacklist_file, opts.regex,
+                                    opts.print_exclude)
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
     if not opts.no_discover and not opts.pdb:
