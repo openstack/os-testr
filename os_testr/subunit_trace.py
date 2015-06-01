@@ -131,7 +131,14 @@ def find_test_run_time_diff(test_id, run_time):
             test_times = dbm.open(times_db_path)
         except Exception:
             return False
-        avg_runtime = float(test_times.get(str(test_id), False))
+        try:
+            avg_runtime = float(test_times.get(str(test_id), False))
+        except Exception:
+            try:
+                avg_runtime = float(test_times[str(test_id)])
+            except Exception:
+                avg_runtime = False
+
         if avg_runtime and avg_runtime > 0:
             run_time = float(run_time.rstrip('s'))
             perc_diff = ((run_time - avg_runtime) / avg_runtime) * 100
