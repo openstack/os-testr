@@ -14,13 +14,13 @@
 
 import os
 import shutil
-import StringIO
 import subprocess
 import tempfile
 
 import testtools
 
 from os_testr.tests import base
+from six import StringIO
 
 DEVNULL = open(os.devnull, 'wb')
 
@@ -47,8 +47,8 @@ class TestReturnCodes(base.TestCase):
         shutil.copy('os_testr/tests/files/setup.cfg', self.setup_cfg_file)
         shutil.copy('os_testr/tests/files/__init__.py', self.init_file)
 
-        self.stdout = StringIO.StringIO()
-        self.stderr = StringIO.StringIO()
+        self.stdout = StringIO()
+        self.stderr = StringIO()
         # Change directory, run wrapper and check result
         self.addCleanup(os.chdir, os.path.abspath(os.curdir))
         os.chdir(self.directory)
