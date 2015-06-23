@@ -147,7 +147,7 @@ def find_test_run_time_diff(test_id, run_time):
 
 
 def show_outcome(stream, test, print_failures=False, failonly=False,
-                 threshold='0'):
+                 enable_diff=False, threshold='0'):
     global RESULTS
     status = test['status']
     # TODO(sdague): ask lifeless why on this?
@@ -176,11 +176,12 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
         if status == 'success':
             out_string = '{%s} %s [%s' % (worker, name, duration)
             perc_diff = find_test_run_time_diff(test['id'], duration)
-            if perc_diff and abs(perc_diff) >= abs(float(threshold)):
-                if perc_diff > 0:
-                    out_string = out_string + ' +%.2f%%' % perc_diff
-                else:
-                    out_string = out_string + ' %.2f%%' % perc_diff
+            if enable_diff:
+                if perc_diff and abs(perc_diff) >= abs(float(threshold)):
+                    if perc_diff > 0:
+                        out_string = out_string + ' +%.2f%%' % perc_diff
+                    else:
+                        out_string = out_string + ' %.2f%%' % perc_diff
             stream.write(out_string + '] ... ok\n')
             print_attachments(stream, test)
         elif status == 'skip':
@@ -282,6 +283,9 @@ def parse_args():
                         default=(
                             os.environ.get('TRACE_FAILONLY', False)
                             is not False))
+    parser.add_argument('--perc-diff', '-d', action='store_true',
+                        dest='enable_diff',
+                        help="Print percent change in run time on each test ")
     parser.add_argument('--diff-threshold', '-t', dest='threshold',
                         help="Threshold to use for displaying percent change "
                              "from the avg run time. If one is not specified "
@@ -299,7 +303,8 @@ def main():
     outcomes = testtools.StreamToDict(
         functools.partial(show_outcome, sys.stdout,
                           print_failures=args.print_failures,
-                          failonly=args.failonly))
+                          failonly=args.failonly,
+                          enable_diff=args.enable_diff))
     summary = testtools.StreamSummary()
     result = testtools.CopyStreamResult([outcomes, summary])
     result = testtools.StreamResultRouter(result)
