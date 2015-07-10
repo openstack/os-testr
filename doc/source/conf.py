@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    #'sphinx.ext.intersphinx',
+    # 'sphinx.ext.intersphinx',
     'oslosphinx'
 ]
 
@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'os-testr'
-copyright = u'2013, OpenStack Foundation'
+copyright = u'2015, Matthew Treinish'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -68,8 +68,15 @@ latex_documents = [
     ('index',
      '%s.tex' % project,
      u'%s Documentation' % project,
-     u'OpenStack Foundation', 'manual'),
+     u'Matthew Treinish', 'manual'),
 ]
 
+man_pages = [('ostestr', 'ostestr', 'tooling to run OpenStack tests',
+             ['Matthew Treinish'], 1),
+             ('subunit_trace', 'subunit-trace', 'pretty output filter for '
+              'subunit streams', ['Matthew Treinish'], 1),
+             ('subunit2html', 'subunit2html', 'generate a html results page '
+              'from a subunit stream', ['Matthew Treinish'], 1)]
+
 # Example configuration for intersphinx: refer to the Python standard library.
-#intersphinx_mapping = {'http://docs.python.org/': None}
+# intersphinx_mapping = {'http://docs.python.org/': None}
