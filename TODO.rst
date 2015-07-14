@@ -15,3 +15,5 @@ Long Term
  * Add subunit-trace functional tests
    ** Sample subunit streams and test output from subunit-trace
  * Add testing for subunit2html
+ * Stop using subprocess in ostestr, everything it uses is python so there
+   isn't a need to shell out for everything.
