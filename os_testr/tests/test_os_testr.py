@@ -19,10 +19,14 @@ test_os_testr
 Tests for `os_testr` module.
 """
 
+from os_testr import os_testr
 from os_testr.tests import base
 
 
-class TestOs_testr(base.TestCase):
+class Test_Construct_Regex(base.TestCase):
 
-    def test_something(self):
-        pass
+    def test_file_name(self):
+        result = os_testr.path_to_regex("tests/network/v2/test_net.py")
+        self.assertEqual("tests.network.v2.test_net", result)
+        result = os_testr.path_to_regex("openstack/tests/network/v2")
+        self.assertEqual("openstack.tests.network.v2", result)
