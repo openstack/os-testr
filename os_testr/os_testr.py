@@ -29,11 +29,19 @@ def parse_args():
     parser.add_argument('--blacklist_file', '-b',
                         help='Path to a blacklist file, this file contains a'
                              ' separate regex exclude on each newline')
-    parser.add_argument('--regex', '-r',
-                        help='A normal testr selection regex. If a blacklist '
-                             'file is specified, the regex will be appended '
-                             'to the end of the generated regex from that '
-                             'file')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--regex', '-r',
+                       help='A normal testr selection regex. If a blacklist '
+                            'file is specified, the regex will be appended '
+                            'to the end of the generated regex from that '
+                            'file.')
+    group.add_argument('--path', metavar='FILE_OR_DIRECTORY',
+                       help='A file name or directory of tests to run.')
+    group.add_argument('--no-discover', '-n', metavar='TEST_ID',
+                       help="Takes in a single test to bypasses test "
+                            "discover and just excute the test specified. "
+                            "A file name may be used in place of a test "
+                            "name.")
     parser.add_argument('--pretty', '-p', dest='pretty', action='store_true',
                         help='Print pretty output from subunit-trace. This is '
                              'mutually exclusive with --subunit')
@@ -44,9 +52,6 @@ def parse_args():
                              'this is mutuall exclusive with --pretty')
     parser.add_argument('--list', '-l', action='store_true',
                         help='List all the tests which will be run.')
-    parser.add_argument('--no-discover', '-n', metavar='TEST_ID',
-                        help="Takes in a single test to bypasses test "
-                             "discover and just excute the test specified")
     parser.add_argument('--slowest', dest='slowest', action='store_true',
                         help="after the test run print the slowest tests")
     parser.add_argument('--no-slowest', dest='slowest', action='store_false',
@@ -110,6 +115,11 @@ def print_skips(regex, message):
             print(test)
         # Extra whitespace to separate
         print('\n')
+
+
+def path_to_regex(path):
+    root, _ = os.path.splitext(path)
+    return root.replace('/', '.')
 
 
 def construct_regex(blacklist_file, regex, print_exclude):
@@ -248,7 +258,11 @@ def main():
         msg = "You can not use until_failure mode with pdb or no-discover"
         print(msg)
         exit(5)
-    exclude_regex = construct_regex(opts.blacklist_file, opts.regex,
+    if opts.path:
+        regex = path_to_regex(opts.path)
+    else:
+        regex = opts.regex
+    exclude_regex = construct_regex(opts.blacklist_file, regex,
                                     opts.print_exclude)
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
@@ -259,6 +273,9 @@ def main():
     elif opts.pdb:
         exit(call_testtools_run(opts.pdb))
     else:
+        test_to_run = opts.no_discover
+        if test_to_run.find('/') != -1:
+            test_to_run = path_to_regex(test_to_run)
         exit(call_subunit_run(opts.no_discover, opts.pretty, opts.subunit))
 
 if __name__ == '__main__':
