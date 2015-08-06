@@ -23,7 +23,7 @@ from subunit import run as subunit_run
 from testtools import run as testtools_run
 
 
-def parse_args():
+def get_parser():
     parser = argparse.ArgumentParser(
         description='Tool to run openstack tests')
     parser.add_argument('--blacklist_file', '-b',
@@ -42,27 +42,30 @@ def parse_args():
                             "discover and just excute the test specified. "
                             "A file name may be used in place of a test "
                             "name.")
-    parser.add_argument('--pretty', '-p', dest='pretty', action='store_true',
+    pretty = parser.add_mutually_exclusive_group()
+    pretty.add_argument('--pretty', '-p', dest='pretty', action='store_true',
                         help='Print pretty output from subunit-trace. This is '
                              'mutually exclusive with --subunit')
-    parser.add_argument('--no-pretty', dest='pretty', action='store_false',
+    pretty.add_argument('--no-pretty', dest='pretty', action='store_false',
                         help='Disable the pretty output with subunit-trace')
     parser.add_argument('--subunit', '-s', action='store_true',
                         help='output the raw subunit v2 from the test run '
-                             'this is mutuall exclusive with --pretty')
+                             'this is mutually exclusive with --pretty')
     parser.add_argument('--list', '-l', action='store_true',
                         help='List all the tests which will be run.')
-    parser.add_argument('--slowest', dest='slowest', action='store_true',
-                        help="after the test run print the slowest tests")
-    parser.add_argument('--no-slowest', dest='slowest', action='store_false',
-                        help="after the test run don't print the slowest "
-                             "tests")
+    slowest = parser.add_mutually_exclusive_group()
+    slowest.add_argument('--slowest', dest='slowest', action='store_true',
+                         help="after the test run print the slowest tests")
+    slowest.add_argument('--no-slowest', dest='slowest', action='store_false',
+                         help="after the test run don't print the slowest "
+                              "tests")
     parser.add_argument('--pdb', metavar='TEST_ID',
                         help='Run a single test that has pdb traces added')
-    parser.add_argument('--parallel', dest='parallel', action='store_true',
-                        help='Run tests in parallel (this is the default)')
-    parser.add_argument('--serial', dest='parallel', action='store_false',
-                        help='Run tests serially')
+    parallel = parser.add_mutually_exclusive_group()
+    parallel.add_argument('--parallel', dest='parallel', action='store_true',
+                          help='Run tests in parallel (this is the default)')
+    parallel.add_argument('--serial', dest='parallel', action='store_false',
+                          help='Run tests serially')
     parser.add_argument('--concurrency', '-c', type=int, metavar='WORKERS',
                         help='The number of workers to use when running in '
                              'parallel. By default this is the number of cpus')
@@ -76,8 +79,7 @@ def parse_args():
                              'prints the comment from the same line and all '
                              'skipped tests before the test run')
     parser.set_defaults(pretty=True, slowest=True, parallel=True)
-    opts = parser.parse_args()
-    return opts
+    return parser
 
 
 def _get_test_list(regex, env=None):
@@ -239,7 +241,7 @@ def call_testtools_run(test_id):
 
 
 def main():
-    opts = parse_args()
+    opts = get_parser().parse_args()
     if opts.pretty and opts.subunit:
         msg = ('Subunit output and pretty output cannot be specified at the '
                'same time')
