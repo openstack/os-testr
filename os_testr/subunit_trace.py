@@ -239,8 +239,13 @@ def run_time():
 def worker_stats(worker):
     tests = RESULTS[worker]
     num_tests = len(tests)
-    delta = tests[-1]['timestamps'][1] - tests[0]['timestamps'][0]
-    return num_tests, delta
+    stop_time = tests[-1]['timestamps'][1]
+    start_time = tests[0]['timestamps'][0]
+    if not start_time or not stop_time:
+        delta = 'N/A'
+    else:
+        delta = stop_time - start_time
+    return num_tests, str(delta)
 
 
 def print_summary(stream, elapsed_time):
@@ -266,8 +271,11 @@ def print_summary(stream, elapsed_time):
                     "Race in testr accounting.\n" % w)
             else:
                 num, time = worker_stats(w)
-                stream.write(" - Worker %s (%s tests) => %ss\n" %
-                             (w, num, time))
+                out_str = " - Worker %s (%s tests) => %s" % (w, num, time)
+                if time.isdigit():
+                    out_str += 's'
+                out_str += '\n'
+                stream.write(out_str)
 
 
 def parse_args():
