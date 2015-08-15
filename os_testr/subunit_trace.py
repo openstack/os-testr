@@ -194,8 +194,11 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
             if abbreviate:
                 stream.write('S')
             else:
-                stream.write('{%s} %s ... SKIPPED: %s\n' % (
-                    worker, name, test['details']['reason'].as_text()))
+                reason = test['details'].get('reason', '')
+                if reason:
+                    reason = ': ' + reason.as_text()
+                stream.write('{%s} %s ... SKIPPED%s\n' % (
+                    worker, name, reason))
         else:
             if abbreviate:
                 stream.write('%s' % test['status'][0])
