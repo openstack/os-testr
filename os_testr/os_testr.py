@@ -26,9 +26,14 @@ from testtools import run as testtools_run
 def get_parser(args):
     parser = argparse.ArgumentParser(
         description='Tool to run openstack tests')
-    parser.add_argument('--blacklist_file', '-b',
-                        help='Path to a blacklist file, this file contains a'
-                             ' separate regex exclude on each newline')
+    list_files = parser.add_mutually_exclusive_group()
+    list_files.add_argument('--blacklist_file', '-b',
+                            help='Path to a blacklist file, this file '
+                                 'contains a separate regex exclude on each '
+                                 'newline')
+    list_files.add_argument('--whitelist_file', '-w',
+                            help='Path to a whitelist file, this file '
+                                 'contains a separate regex on each newline.')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--regex', '-r',
                        help='A normal testr selection regex. If a blacklist '
@@ -124,7 +129,11 @@ def path_to_regex(path):
     return root.replace('/', '.')
 
 
-def construct_regex(blacklist_file, regex, print_exclude):
+def get_regex_from_whitelist_file(file_path):
+    return '|'.join(open(file_path).read().splitlines())
+
+
+def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
     if not blacklist_file:
         exclude_regex = ''
     else:
@@ -148,6 +157,8 @@ def construct_regex(blacklist_file, regex, print_exclude):
             exclude_regex = "(?!.*" + exclude_regex + ")"
     if regex:
         exclude_regex += regex
+    if whitelist_file:
+        exclude_regex += '%s' % get_regex_from_whitelist_file(whitelist_file)
     return exclude_regex
 
 
@@ -280,7 +291,9 @@ def main():
         regex = path_to_regex(opts.path)
     else:
         regex = opts.regex
-    exclude_regex = construct_regex(opts.blacklist_file, regex,
+    exclude_regex = construct_regex(opts.blacklist_file,
+                                    opts.whitelist_file,
+                                    regex,
                                     opts.print_exclude)
     exit(_select_and_call_runner(opts, exclude_regex))
 
