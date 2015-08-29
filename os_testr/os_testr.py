@@ -134,15 +134,18 @@ def construct_regex(blacklist_file, regex, print_exclude):
             raw_line = line.strip()
             split_line = raw_line.split('#')
             # Before the # is the regex
-            regex = split_line[0].strip()
-            # After the # is a comment
-            comment = split_line[1].strip()
-            if regex:
+            line_regex = split_line[0].strip()
+            if len(split_line) > 1:
+                # After the # is a comment
+                comment = split_line[1].strip()
+            else:
+                comment = ''
+            if line_regex:
                 if print_exclude:
-                    print_skips(regex, comment)
-                exclude_regex = '|'.join([regex, exclude_regex])
+                    print_skips(line_regex, comment)
+                exclude_regex = '|'.join([line_regex, exclude_regex])
         if exclude_regex:
-            exclude_regex = "'(?!.*" + exclude_regex + ")"
+            exclude_regex = "(?!.*" + exclude_regex + ")"
     if regex:
         exclude_regex += regex
     return exclude_regex
