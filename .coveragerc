@@ -4,4 +4,4 @@ source = os_testr
 omit = os_testr/tests/*,os_testr/openstack/*
 
 [report]
-ignore-errors = True
+ignore_errors = True
