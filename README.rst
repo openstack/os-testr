@@ -17,18 +17,3 @@ Features
 * subunit-trace: an output filter for a subunit stream which provides useful
                  information about the run
 * subunit2html: generates a test results html page from a subunit stream
-
-Release Notes
-=============
-
-0.2.0
------
- * Adds support for comments in a blacklist file and printing comments for each
-   exclude
- * Several bugfixes for subunit-trace
- * Switched subunit-trace behavior to disable printing percent change
-   in run time by default and make it optional
-
-0.1.0
------
- * First release which includes: ostestr, subunit-trace, and subunit2html
