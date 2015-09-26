@@ -23,7 +23,7 @@ from subunit import run as subunit_run
 from testtools import run as testtools_run
 
 
-def get_parser():
+def get_parser(args):
     parser = argparse.ArgumentParser(
         description='Tool to run openstack tests')
     parser.add_argument('--blacklist_file', '-b',
@@ -79,7 +79,7 @@ def get_parser():
                              'prints the comment from the same line and all '
                              'skipped tests before the test run')
     parser.set_defaults(pretty=True, slowest=True, parallel=True)
-    return parser
+    return parser.parse_args(args)
 
 
 def _get_test_list(regex, env=None):
@@ -240,8 +240,27 @@ def call_testtools_run(test_id):
     testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
+def _select_and_call_runner(opts, exclude_regex):
+    ec = 1
+    if not os.path.isdir('.testrepository'):
+        subprocess.call(['testr', 'init'])
+
+    if not opts.no_discover and not opts.pdb:
+        ec = call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
+                        opts.slowest, opts.parallel, opts.concurrency,
+                        opts.until_failure)
+    elif opts.pdb:
+        ec = call_testtools_run(opts.pdb)
+    else:
+        test_to_run = opts.no_discover
+        if test_to_run.find('/') != -1:
+            test_to_run = path_to_regex(test_to_run)
+        ec = call_subunit_run(opts.no_discover, opts.pretty, opts.subunit)
+    return ec
+
+
 def main():
-    opts = get_parser().parse_args()
+    opts = get_parser(sys.argv[1:])
     if opts.pretty and opts.subunit:
         msg = ('Subunit output and pretty output cannot be specified at the '
                'same time')
@@ -266,19 +285,7 @@ def main():
         regex = opts.regex
     exclude_regex = construct_regex(opts.blacklist_file, regex,
                                     opts.print_exclude)
-    if not os.path.isdir('.testrepository'):
-        subprocess.call(['testr', 'init'])
-    if not opts.no_discover and not opts.pdb:
-        exit(call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
-                        opts.slowest, opts.parallel, opts.concurrency,
-                        opts.until_failure))
-    elif opts.pdb:
-        exit(call_testtools_run(opts.pdb))
-    else:
-        test_to_run = opts.no_discover
-        if test_to_run.find('/') != -1:
-            test_to_run = path_to_regex(test_to_run)
-        exit(call_subunit_run(opts.no_discover, opts.pretty, opts.subunit))
+    exit(_select_and_call_runner(opts, exclude_regex))
 
 if __name__ == '__main__':
     main()

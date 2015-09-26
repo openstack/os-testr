@@ -18,6 +18,7 @@ test_os_testr
 
 Tests for `os_testr` module.
 """
+import mock
 
 from os_testr import os_testr
 from os_testr.tests import base
@@ -34,25 +35,43 @@ class TestPathToRegex(base.TestCase):
 
 class TestGetParser(base.TestCase):
     def test_pretty(self):
-        namespace = os_testr.get_parser().parse_args(['--pretty'])
+        namespace = os_testr.get_parser(['--pretty'])
         self.assertEqual(True, namespace.pretty)
-        namespace = os_testr.get_parser().parse_args(['--no-pretty'])
+        namespace = os_testr.get_parser(['--no-pretty'])
         self.assertEqual(False, namespace.pretty)
-        self.assertRaises(SystemExit, os_testr.get_parser().parse_args,
+        self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--no-pretty', '--pretty'])
 
     def test_slowest(self):
-        namespace = os_testr.get_parser().parse_args(['--slowest'])
+        namespace = os_testr.get_parser(['--slowest'])
         self.assertEqual(True, namespace.slowest)
-        namespace = os_testr.get_parser().parse_args(['--no-slowest'])
+        namespace = os_testr.get_parser(['--no-slowest'])
         self.assertEqual(False, namespace.slowest)
-        self.assertRaises(SystemExit, os_testr.get_parser().parse_args,
+        self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--no-slowest', '--slowest'])
 
     def test_parallel(self):
-        namespace = os_testr.get_parser().parse_args(['--parallel'])
+        namespace = os_testr.get_parser(['--parallel'])
         self.assertEqual(True, namespace.parallel)
-        namespace = os_testr.get_parser().parse_args(['--serial'])
+        namespace = os_testr.get_parser(['--serial'])
         self.assertEqual(False, namespace.parallel)
-        self.assertRaises(SystemExit, os_testr.get_parser().parse_args,
+        self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--parallel', '--serial'])
+
+
+class TestCallers(base.TestCase):
+    def test_no_discover(self):
+        namespace = os_testr.get_parser(['-n', 'project.tests.foo'])
+
+        def _fake_exit(arg):
+            self.assertTrue(arg)
+
+        def _fake_run(*args, **kwargs):
+            return 'project.tests.foo' in args
+
+        with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
+                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'call_subunit_run',
+                                  side_effect=_fake_run):
+            os_testr.main()
