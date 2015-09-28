@@ -236,10 +236,6 @@ def call_subunit_run(test_id, pretty, subunit):
         testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
-def call_testtools_run(test_id):
-    testtools_run.main([sys.argv[0], test_id], sys.stdout)
-
-
 def _select_and_call_runner(opts, exclude_regex):
     ec = 1
     if not os.path.isdir('.testrepository'):
@@ -249,13 +245,11 @@ def _select_and_call_runner(opts, exclude_regex):
         ec = call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest, opts.parallel, opts.concurrency,
                         opts.until_failure)
-    elif opts.pdb:
-        ec = call_testtools_run(opts.pdb)
     else:
-        test_to_run = opts.no_discover
+        test_to_run = opts.no_discover or opts.pdb
         if test_to_run.find('/') != -1:
             test_to_run = path_to_regex(test_to_run)
-        ec = call_subunit_run(opts.no_discover, opts.pretty, opts.subunit)
+        ec = call_subunit_run(test_to_run, opts.pretty, opts.subunit)
     return ec
 
 

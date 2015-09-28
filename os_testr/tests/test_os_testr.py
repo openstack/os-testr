@@ -75,3 +75,51 @@ class TestCallers(base.TestCase):
                                   'call_subunit_run',
                                   side_effect=_fake_run):
             os_testr.main()
+
+    def test_no_discover_path(self):
+        namespace = os_testr.get_parser(['-n', 'project/tests/foo'])
+
+        def _fake_exit(arg):
+            self.assertTrue(arg)
+
+        def _fake_run(*args, **kwargs):
+            return 'project.tests.foo' in args
+
+        with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
+                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'call_subunit_run',
+                                  side_effect=_fake_run):
+            os_testr.main()
+
+    def test_pdb(self):
+        namespace = os_testr.get_parser(['--pdb', 'project.tests.foo'])
+
+        def _fake_exit(arg):
+            self.assertTrue(arg)
+
+        def _fake_run(*args, **kwargs):
+            return 'project.tests.foo' in args
+
+        with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
+                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'call_subunit_run',
+                                  side_effect=_fake_run):
+            os_testr.main()
+
+    def test_pdb_path(self):
+        namespace = os_testr.get_parser(['--pdb', 'project/tests/foo'])
+
+        def _fake_exit(arg):
+            self.assertTrue(arg)
+
+        def _fake_run(*args, **kwargs):
+            return 'project.tests.foo' in args
+
+        with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
+                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'call_subunit_run',
+                                  side_effect=_fake_run):
+            os_testr.main()
