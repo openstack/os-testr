@@ -120,6 +120,7 @@ def print_attachments(stream, test, all_channels=False):
             # indent attachment lines 4 spaces to make them visually
             # offset
             for line in detail.as_text().split('\n'):
+                line = line.encode('utf8')
                 stream.write("    %s\n" % line)
 
 
