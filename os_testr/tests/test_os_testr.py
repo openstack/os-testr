@@ -142,7 +142,7 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None, None, False)
         self.assertEqual(
             result,
-            "(?!.*fake_regex_3|fake_regex_2|fake_regex_1|fake_regex_0|)")
+            "^((?!fake_regex_3|fake_regex_2|fake_regex_1|fake_regex_0).)*$")
 
     def test_blacklist_regex_without_comments(self):
         blacklist_file = six.StringIO()
@@ -154,7 +154,7 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None, None, False)
         self.assertEqual(
             result,
-            "(?!.*fake_regex_3|fake_regex_2|fake_regex_1|fake_regex_0|)")
+            "^((?!fake_regex_3|fake_regex_2|fake_regex_1|fake_regex_0).)*$")
 
     def test_blacklist_regex_with_comments_and_regex(self):
         blacklist_file = six.StringIO()
@@ -166,8 +166,8 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None,
                                               'fake_regex', False)
 
-            expected_regex = ("(?!.*fake_regex_3|fake_regex_2|fake_regex_1|"
-                              "fake_regex_0|)fake_regex")
+            expected_regex = ("^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                              "fake_regex_0).)*$fake_regex")
             self.assertEqual(result, expected_regex)
 
     def test_blacklist_regex_without_comments_and_regex(self):
@@ -180,8 +180,8 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None,
                                               'fake_regex', False)
 
-            expected_regex = ("(?!.*fake_regex_3|fake_regex_2|fake_regex_1|"
-                              "fake_regex_0|)fake_regex")
+            expected_regex = ("^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                              "fake_regex_0).)*$fake_regex")
             self.assertEqual(result, expected_regex)
 
     @mock.patch.object(os_testr, 'print_skips')
@@ -195,8 +195,8 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None,
                                               None, True)
 
-        expected_regex = ("(?!.*fake_regex_3|fake_regex_2|fake_regex_1|"
-                          "fake_regex_0|)")
+        expected_regex = ("^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                          "fake_regex_0).)*$")
         self.assertEqual(result, expected_regex)
         calls = print_mock.mock_calls
         self.assertEqual(len(calls), 4)
@@ -217,8 +217,8 @@ class TestConstructRegex(base.TestCase):
             result = os_testr.construct_regex('fake_path', None,
                                               None, True)
 
-        expected_regex = ("(?!.*fake_regex_3|fake_regex_2|fake_regex_1|"
-                          "fake_regex_0|)")
+        expected_regex = ("^((?!fake_regex_3|fake_regex_2|"
+                          "fake_regex_1|fake_regex_0).)*$")
         self.assertEqual(result, expected_regex)
         calls = print_mock.mock_calls
         self.assertEqual(len(calls), 4)

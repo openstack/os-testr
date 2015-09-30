@@ -152,9 +152,12 @@ def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
             if line_regex:
                 if print_exclude:
                     print_skips(line_regex, comment)
-                exclude_regex = '|'.join([line_regex, exclude_regex])
+                if exclude_regex:
+                    exclude_regex = '|'.join([line_regex, exclude_regex])
+                else:
+                    exclude_regex = line_regex
         if exclude_regex:
-            exclude_regex = "(?!.*" + exclude_regex + ")"
+            exclude_regex = "^((?!" + exclude_regex + ").)*$"
     if regex:
         exclude_regex += regex
     if whitelist_file:
