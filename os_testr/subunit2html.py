@@ -633,10 +633,10 @@ class HtmlOutput(testtools.TestResult):
             test = test.test
         if test.__class__ == subunit.RemotedTestCase:
             cl = test._RemotedTestCase__description.rsplit('.', 1)[0]
-            mod = cl.rsplit('.', 1)[0]
-            cls = ClassInfoWrapper(cl, mod)
         else:
-            cls = ClassInfoWrapper(str(test.__class__), str(test.__module__))
+            cl = test.id().rsplit('.', 1)[0]
+        mod = cl.rsplit('.', 1)[0]
+        cls = ClassInfoWrapper(cl, mod)
         if not str(cls) in rmap:
             rmap[str(cls)] = []
             classes.append(cls)
