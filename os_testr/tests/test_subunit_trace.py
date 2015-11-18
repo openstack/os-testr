@@ -14,6 +14,8 @@
 # under the License.
 
 from datetime import datetime as dt
+import os
+import subprocess
 
 from ddt import data
 from ddt import ddt
@@ -59,3 +61,21 @@ class TestSubunitTrace(base.TestCase):
         }
         with patch.dict(subunit_trace.RESULTS, patched_res, clear=True):
             self.assertEqual(subunit_trace.run_time(), expected_result)
+
+    def test_return_code_all_skips(self):
+        skips_stream = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'sample_streams/all_skips.subunit')
+        p = subprocess.Popen(['subunit-trace'], stdin=subprocess.PIPE)
+        with open(skips_stream, 'rb') as stream:
+            p.communicate(stream.read())
+        self.assertEqual(1, p.returncode)
+
+    def test_return_code_normal_run(self):
+        regular_stream = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'sample_streams/successful.subunit')
+        p = subprocess.Popen(['subunit-trace'], stdin=subprocess.PIPE)
+        with open(regular_stream, 'rb') as stream:
+            p.communicate(stream.read())
+        self.assertEqual(0, p.returncode)
