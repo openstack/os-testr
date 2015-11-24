@@ -17,6 +17,7 @@
 # under the License.
 
 """Trace a subunit stream in reasonable detail and high accuracy."""
+from __future__ import absolute_import
 
 import argparse
 import datetime
@@ -27,6 +28,8 @@ import sys
 
 import subunit
 import testtools
+
+from os_testr.utils import colorizer
 
 # NOTE(mtreinish) on python3 anydbm was renamed dbm and the python2 dbm module
 # was renamed to dbm.ndbm, this block takes that into account
@@ -148,7 +151,8 @@ def find_test_run_time_diff(test_id, run_time):
 
 
 def show_outcome(stream, test, print_failures=False, failonly=False,
-                 enable_diff=False, threshold='0', abbreviate=False):
+                 enable_diff=False, threshold='0', abbreviate=False,
+                 enable_color=False):
     global RESULTS
     status = test['status']
     # TODO(sdague): ask lifeless why on this?
@@ -167,19 +171,29 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
     if name == 'process-returncode':
         return
 
+    for color in [colorizer.AnsiColorizer, colorizer.NullColorizer]:
+        if not enable_color:
+            color = colorizer.NullColorizer(stream)
+            break
+        if color.supported():
+            color = color(stream)
+            break
+
     if status == 'fail':
         FAILS.append(test)
         if abbreviate:
-            stream.write('F')
+            color.write('F', 'red')
         else:
-            stream.write('{%s} %s [%s] ... FAILED\n' % (
+            stream.write('{%s} %s [%s] ... ' % (
                 worker, name, duration))
+            color.write('FAILED', 'red')
+            stream.write('\n')
             if not print_failures:
                 print_attachments(stream, test, all_channels=True)
     elif not failonly:
         if status == 'success':
             if abbreviate:
-                stream.write('.')
+                color.write('.', 'green')
             else:
                 out_string = '{%s} %s [%s' % (worker, name, duration)
                 perc_diff = find_test_run_time_diff(test['id'], duration)
@@ -189,17 +203,22 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
                             out_string = out_string + ' +%.2f%%' % perc_diff
                         else:
                             out_string = out_string + ' %.2f%%' % perc_diff
-                stream.write(out_string + '] ... ok\n')
+                stream.write(out_string + '] ... ')
+                color.write('ok', 'green')
+                stream.write('\n')
                 print_attachments(stream, test)
         elif status == 'skip':
             if abbreviate:
-                stream.write('S')
+                color.write('S', 'blue')
             else:
                 reason = test['details'].get('reason', '')
                 if reason:
                     reason = ': ' + reason.as_text()
-                stream.write('{%s} %s ... SKIPPED%s\n' % (
-                    worker, name, reason))
+                stream.write('{%s} %s ... ' % (
+                    worker, name))
+                color.write('SKIPPED', 'blue')
+                stream.write('%s' % (reason))
+                stream.write('\n')
         else:
             if abbreviate:
                 stream.write('%s' % test['status'][0])
@@ -320,6 +339,8 @@ def parse_args():
     parser.add_argument('--no-summary', action='store_true',
                         help="Don't print the summary of the test run after "
                              " completes")
+    parser.add_argument('--color', action='store_true',
+                        help="Print results with colors")
     return parser.parse_args()
 
 
@@ -332,7 +353,8 @@ def main():
                           print_failures=args.print_failures,
                           failonly=args.failonly,
                           enable_diff=args.enable_diff,
-                          abbreviate=args.abbreviate))
+                          abbreviate=args.abbreviate,
+                          enable_color=args.color))
     summary = testtools.StreamSummary()
     result = testtools.CopyStreamResult([outcomes, summary])
     result = testtools.StreamResultRouter(result)
