@@ -11,7 +11,7 @@ Summary
 -------
 
 subunit-trace [--fails|-f] [--failonly] [--perc-diff|-d] [--no-summary]
-              [--diff-threshold|-t <threshold>]
+              [--diff-threshold|-t <threshold>] [--color]
 
 Options
 -------
@@ -31,6 +31,8 @@ Options
                         change will always be displayed.
   --no-summary
                         Don't print the summary of the test run after completes
+  --color
+                        Print result with colors
 
 Usage
 -----
