@@ -20,7 +20,7 @@ Options
                         Disable printing failure debug information in realtime
   --fails, -f
                         Print failure debug information after the stream is
-                        proccesed
+                        processed
   --failonly
                         Don't print success items
   --perc-diff, -d
@@ -58,7 +58,7 @@ disabled by using --no-failure-debug, -n. For example::
 
     $ testr run --subunit | subunit-trace --no-failure-debug
 
-Rhere is also the option to print all failures together at the end of the test
+Here is also the option to print all failures together at the end of the test
 run before the summary view. This is done using the --fails/-f option. For
 example::
 
@@ -77,7 +77,7 @@ example::
 
      $ testr run --subunit | subunit-trace --failonly
 
-The last output option provided by subunit-trace is to diable the summary view
+The last output option provided by subunit-trace is to disable the summary view
 of the test run which is normally displayed at the end of a run. You can do
 this using the --no-summary option. For example::
 
