@@ -376,6 +376,12 @@ def main():
         print_fails(sys.stdout)
     if not args.no_summary:
         print_summary(sys.stdout, elapsed_time)
+
+    # NOTE(mtreinish): Ideally this should live in testtools streamSummary
+    # this is just in place until the behavior lands there (if it ever does)
+    if count_tests('status', '^success$') == 0:
+        print("\nNo tests were successful during the run")
+        exit(1)
     exit(0 if summary.wasSuccessful() else 1)
 
 
