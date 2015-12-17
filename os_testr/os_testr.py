@@ -58,6 +58,8 @@ def get_parser(args):
                              'this is mutually exclusive with --pretty')
     parser.add_argument('--list', '-l', action='store_true',
                         help='List all the tests which will be run.')
+    parser.add_argument('--color', action='store_true',
+                        help='Use color in the pretty output')
     slowest = parser.add_mutually_exclusive_group()
     slowest.add_argument('--slowest', dest='slowest', action='store_true',
                          help="after the test run print the slowest tests")
@@ -166,7 +168,7 @@ def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
 
 
 def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
-               until_failure):
+               until_failure, color):
     if parallel:
         cmd = ['testr', 'run', '--parallel']
         if concur:
@@ -181,6 +183,12 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
         cmd.append('--until-failure')
     cmd.append(regex)
     env = copy.deepcopy(os.environ)
+
+    if pretty:
+        subunit_trace_cmd = ['subunit-trace', '--no-failure-debug', '-f']
+        if color:
+            subunit_trace_cmd.append('--color')
+
     # This workaround is necessary because of lp bug 1411804 it's super hacky
     # and makes tons of unfounded assumptions, but it works for the most part
     if (subunit or pretty) and until_failure:
@@ -198,9 +206,9 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                 if pretty:
                     cmd = ['python', '-m', 'subunit.run', test]
                     ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
-                    proc = subprocess.Popen(['subunit-trace',
-                                             '--no-failure-debug', '-f',
-                                             '--no-summary'], env=env,
+                    subunit_trace_cmd.append('--no-summary')
+                    proc = subprocess.Popen(subunit_trace_cmd,
+                                            env=env,
                                             stdin=ps.stdout)
                     ps.stdout.close()
                     proc.communicate()
@@ -223,7 +231,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
     # If not until-failure special case call testr like normal
     elif pretty and not list_tests:
         ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
-        proc = subprocess.Popen(['subunit-trace', '--no-failure-debug', '-f'],
+        proc = subprocess.Popen(subunit_trace_cmd,
                                 env=env, stdin=ps.stdout)
         ps.stdout.close()
     else:
@@ -261,7 +269,7 @@ def _select_and_call_runner(opts, exclude_regex):
     if not opts.no_discover and not opts.pdb:
         ec = call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest, opts.parallel, opts.concurrency,
-                        opts.until_failure)
+                        opts.until_failure, opts.color)
     else:
         test_to_run = opts.no_discover or opts.pdb
         if test_to_run.find('/') != -1:
