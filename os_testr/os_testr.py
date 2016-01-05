@@ -132,7 +132,14 @@ def path_to_regex(path):
 
 
 def get_regex_from_whitelist_file(file_path):
-    return '|'.join(open(file_path).read().splitlines())
+    lines = []
+    for line in open(file_path).read().splitlines():
+        split_line = line.strip().split('#')
+        # Before the # is the regex
+        line_regex = split_line[0].strip()
+        if line_regex:
+            lines.append(line_regex)
+    return '|'.join(lines)
 
 
 def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
