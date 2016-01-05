@@ -144,6 +144,18 @@ class TestConstructRegex(base.TestCase):
             result,
             "^((?!fake_regex_3|fake_regex_2|fake_regex_1|fake_regex_0).)*$")
 
+    def test_whitelist_regex_with_comments(self):
+        whitelist_file = six.StringIO()
+        for i in range(4):
+            whitelist_file.write('fake_regex_%s # A Comment\n' % i)
+        whitelist_file.seek(0)
+        with mock.patch('six.moves.builtins.open',
+                        return_value=whitelist_file):
+            result = os_testr.construct_regex(None, 'fake_path', None, False)
+        self.assertEqual(
+            result,
+            "fake_regex_0|fake_regex_1|fake_regex_2|fake_regex_3")
+
     def test_blacklist_regex_without_comments(self):
         blacklist_file = six.StringIO()
         for i in range(4):
