@@ -38,25 +38,25 @@ class TestPathToRegex(base.TestCase):
 class TestGetParser(base.TestCase):
     def test_pretty(self):
         namespace = os_testr.get_parser(['--pretty'])
-        self.assertEqual(True, namespace.pretty)
+        self.assertEqual(True, namespace[0].pretty)
         namespace = os_testr.get_parser(['--no-pretty'])
-        self.assertEqual(False, namespace.pretty)
+        self.assertEqual(False, namespace[0].pretty)
         self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--no-pretty', '--pretty'])
 
     def test_slowest(self):
         namespace = os_testr.get_parser(['--slowest'])
-        self.assertEqual(True, namespace.slowest)
+        self.assertEqual(True, namespace[0].slowest)
         namespace = os_testr.get_parser(['--no-slowest'])
-        self.assertEqual(False, namespace.slowest)
+        self.assertEqual(False, namespace[0].slowest)
         self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--no-slowest', '--slowest'])
 
     def test_parallel(self):
         namespace = os_testr.get_parser(['--parallel'])
-        self.assertEqual(True, namespace.parallel)
+        self.assertEqual(True, namespace[0].parallel)
         namespace = os_testr.get_parser(['--serial'])
-        self.assertEqual(False, namespace.parallel)
+        self.assertEqual(False, namespace[0].parallel)
         self.assertRaises(SystemExit, os_testr.get_parser,
                           ['--parallel', '--serial'])
 
