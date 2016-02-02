@@ -114,7 +114,7 @@ exposed via the --regex option. For example::
 This will do a straight passthrough of the provided regex to testr.
 Additionally, ostestr allows you to specify a blacklist file to define a set
 of regexes to exclude. You can specify a blacklist file with the
---blacklist-file/-b option, for example::
+--blacklist_file/-b option, for example::
 
     $ ostestr --blacklist_file $path_to_file
 
