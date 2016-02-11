@@ -86,7 +86,7 @@ def get_parser(args):
                              'prints the comment from the same line and all '
                              'skipped tests before the test run')
     parser.set_defaults(pretty=True, slowest=True, parallel=True)
-    return parser.parse_args(args)
+    return parser.parse_known_args(args)
 
 
 def _get_test_list(regex, env=None):
@@ -175,7 +175,8 @@ def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
 
 
 def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
-               until_failure, color):
+               until_failure, color, others=None):
+    others = others or []
     if parallel:
         cmd = ['testr', 'run', '--parallel']
         if concur:
@@ -237,11 +238,13 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                 exit(0)
     # If not until-failure special case call testr like normal
     elif pretty and not list_tests:
+        cmd.extend(others)
         ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
         proc = subprocess.Popen(subunit_trace_cmd,
                                 env=env, stdin=ps.stdout)
         ps.stdout.close()
     else:
+        cmd.extend(others)
         proc = subprocess.Popen(cmd, env=env)
     proc.communicate()
     return_code = proc.returncode
@@ -268,7 +271,7 @@ def call_subunit_run(test_id, pretty, subunit):
         testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
-def _select_and_call_runner(opts, exclude_regex):
+def _select_and_call_runner(opts, exclude_regex, others):
     ec = 1
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
@@ -276,8 +279,11 @@ def _select_and_call_runner(opts, exclude_regex):
     if not opts.no_discover and not opts.pdb:
         ec = call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest, opts.parallel, opts.concurrency,
-                        opts.until_failure, opts.color)
+                        opts.until_failure, opts.color, others)
     else:
+        if others:
+            print('Unexpected arguments: ' + ' '.join(others))
+            return 2
         test_to_run = opts.no_discover or opts.pdb
         if test_to_run.find('/') != -1:
             test_to_run = path_to_regex(test_to_run)
@@ -286,7 +292,7 @@ def _select_and_call_runner(opts, exclude_regex):
 
 
 def main():
-    opts = get_parser(sys.argv[1:])
+    opts, others = get_parser(sys.argv[1:])
     if opts.pretty and opts.subunit:
         msg = ('Subunit output and pretty output cannot be specified at the '
                'same time')
@@ -313,7 +319,7 @@ def main():
                                     opts.whitelist_file,
                                     regex,
                                     opts.print_exclude)
-    exit(_select_and_call_runner(opts, exclude_regex))
+    exit(_select_and_call_runner(opts, exclude_regex, others))
 
 if __name__ == '__main__':
     main()
