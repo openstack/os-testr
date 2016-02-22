@@ -191,7 +191,7 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
             if not print_failures:
                 print_attachments(stream, test, all_channels=True)
     elif not failonly:
-        if status == 'success':
+        if status == 'success' or status == 'xfail':
             if abbreviate:
                 color.write('.', 'green')
             else:
