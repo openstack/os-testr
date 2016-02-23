@@ -14,13 +14,16 @@
 # under the License.
 
 from datetime import datetime as dt
+import io
 import os
 import subprocess
+import sys
 
 from ddt import data
 from ddt import ddt
 from ddt import unpack
 from mock import patch
+import six
 
 from os_testr import subunit_trace
 from os_testr.tests import base
@@ -79,3 +82,15 @@ class TestSubunitTrace(base.TestCase):
         with open(regular_stream, 'rb') as stream:
             p.communicate(stream.read())
         self.assertEqual(0, p.returncode)
+
+    def test_trace(self):
+        regular_stream = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'sample_streams/successful.subunit')
+        bytes_ = io.BytesIO()
+        with open(regular_stream, 'rb') as stream:
+            bytes_.write(six.binary_type(stream.read()))
+        bytes_.seek(0)
+        stdin = io.TextIOWrapper(io.BufferedReader(bytes_))
+        returncode = subunit_trace.trace(stdin, sys.stdout)
+        self.assertEqual(0, returncode)
