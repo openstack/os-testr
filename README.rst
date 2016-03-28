@@ -2,6 +2,14 @@
 os-testr
 ========
 
+.. image:: https://img.shields.io/pypi/v/os-testr.svg
+    :target: https://pypi.python.org/pypi/os-testr/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/os-testr.svg
+    :target: https://pypi.python.org/pypi/os-testr/
+    :alt: Downloads
+
 A testr wrapper to provide functionality for OpenStack projects.
 
 * Free software: Apache license
