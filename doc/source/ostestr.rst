@@ -36,12 +36,12 @@ Options
                         Disable the pretty output with subunit-trace
   --subunit, -s
                         output the raw subunit v2 from the test run this is
-                        mutuall exclusive with --pretty
+                        mutually exclusive with --pretty
   --list, -l
                         List all the tests which will be run.
   --no-discover TEST_ID, -n TEST_ID
                         Takes in a single test to bypasses test discover and
-                        just excute the test specified
+                        just execute the test specified
   --slowest
                         After the test run print the slowest tests
   --no-slowest
