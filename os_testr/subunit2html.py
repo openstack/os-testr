@@ -60,10 +60,12 @@ import sys
 import traceback
 from xml.sax import saxutils
 
+import pbr.version
 import subunit
 import testtools
 
-__version__ = '0.1'
+
+__version__ = pbr.version.VersionInfo('os_testr').version_string()
 
 
 class TemplateData(object):
@@ -701,6 +703,10 @@ class FileAccumulator(testtools.StreamResult):
 
 
 def main():
+    if '--version' in sys.argv:
+        print(__version__)
+        exit(0)
+
     if len(sys.argv) < 2:
         print("Need at least one argument: path to subunit log.")
         exit(1)

@@ -17,11 +17,19 @@
 import datetime
 import sys
 
+import pbr.version
 import subunit
 from subunit import iso8601
 
 
+__version__ = pbr.version.VersionInfo('os_testr').version_string()
+
+
 def main():
+    if '--version' in sys.argv:
+        print(__version__)
+        exit(0)
+
     start_time = datetime.datetime.fromtimestamp(float(sys.argv[1])).replace(
         tzinfo=iso8601.UTC)
     elapsed_time = datetime.timedelta(seconds=int(sys.argv[2]))

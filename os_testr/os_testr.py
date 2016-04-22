@@ -19,13 +19,19 @@ import os
 import subprocess
 import sys
 
+import pbr.version
 from subunit import run as subunit_run
 from testtools import run as testtools_run
+
+
+__version__ = pbr.version.VersionInfo('os_testr').version_string()
 
 
 def get_parser(args):
     parser = argparse.ArgumentParser(
         description='Tool to run openstack tests')
+    parser.add_argument('--version', action='version',
+                        version='%s' % __version__)
     list_files = parser.add_mutually_exclusive_group()
     list_files.add_argument('--blacklist_file', '-b',
                             help='Path to a blacklist file, this file '

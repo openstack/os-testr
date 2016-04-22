@@ -26,6 +26,7 @@ import os
 import re
 import sys
 
+import pbr.version
 import subunit
 import testtools
 
@@ -313,8 +314,13 @@ def print_summary(stream, elapsed_time):
                 stream.write(out_str)
 
 
+__version__ = pbr.version.VersionInfo('os_testr').version_string()
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version',
+                        version='%s' % __version__)
     parser.add_argument('--no-failure-debug', '-n', action='store_true',
                         dest='print_failures', help='Disable printing failure '
                         'debug information in realtime')
