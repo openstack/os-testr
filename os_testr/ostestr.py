@@ -23,6 +23,8 @@ import pbr.version
 from subunit import run as subunit_run
 from testtools import run as testtools_run
 
+from os_testr import regex_builder as rb
+
 
 __version__ = pbr.version.VersionInfo('os_testr').version_string()
 
@@ -95,91 +97,6 @@ def get_parser(args):
     return parser.parse_known_args(args)
 
 
-def _get_test_list(regex, env=None):
-    env = env or copy.deepcopy(os.environ)
-    proc = subprocess.Popen(['testr', 'list-tests', regex], env=env,
-                            stdout=subprocess.PIPE)
-    out = proc.communicate()[0]
-    raw_test_list = out.split('\n')
-    bad = False
-    test_list = []
-    exclude_list = ['OS_', 'CAPTURE', 'TEST_TIMEOUT', 'PYTHON',
-                    'subunit.run discover']
-    for line in raw_test_list:
-        for exclude in exclude_list:
-            if exclude in line:
-                bad = True
-                break
-            elif not line:
-                bad = True
-                break
-        if not bad:
-            test_list.append(line)
-        bad = False
-    return test_list
-
-
-def print_skips(regex, message):
-    test_list = _get_test_list(regex)
-    if test_list:
-        if message:
-            print(message)
-        else:
-            print('Skipped because of regex %s:' % regex)
-        for test in test_list:
-            print(test)
-        # Extra whitespace to separate
-        print('\n')
-
-
-def path_to_regex(path):
-    root, _ = os.path.splitext(path)
-    return root.replace('/', '.')
-
-
-def get_regex_from_whitelist_file(file_path):
-    lines = []
-    for line in open(file_path).read().splitlines():
-        split_line = line.strip().split('#')
-        # Before the # is the regex
-        line_regex = split_line[0].strip()
-        if line_regex:
-            lines.append(line_regex)
-    return '|'.join(lines)
-
-
-def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
-    if not blacklist_file:
-        exclude_regex = ''
-    else:
-        black_file = open(blacklist_file, 'r')
-        exclude_regex = ''
-        for line in black_file:
-            raw_line = line.strip()
-            split_line = raw_line.split('#')
-            # Before the # is the regex
-            line_regex = split_line[0].strip()
-            if len(split_line) > 1:
-                # After the # is a comment
-                comment = split_line[1].strip()
-            else:
-                comment = ''
-            if line_regex:
-                if print_exclude:
-                    print_skips(line_regex, comment)
-                if exclude_regex:
-                    exclude_regex = '|'.join([line_regex, exclude_regex])
-                else:
-                    exclude_regex = line_regex
-        if exclude_regex:
-            exclude_regex = "^((?!" + exclude_regex + ").)*$"
-    if regex:
-        exclude_regex += regex
-    if whitelist_file:
-        exclude_regex += '%s' % get_regex_from_whitelist_file(whitelist_file)
-    return exclude_regex
-
-
 def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                until_failure, color, others=None):
     others = others or []
@@ -206,7 +123,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
     # This workaround is necessary because of lp bug 1411804 it's super hacky
     # and makes tons of unfounded assumptions, but it works for the most part
     if (subunit or pretty) and until_failure:
-        test_list = _get_test_list(regex, env)
+        test_list = rb._get_test_list(regex, env)
         count = 0
         failed = False
         if not test_list:
@@ -292,7 +209,7 @@ def _select_and_call_runner(opts, exclude_regex, others):
             return 2
         test_to_run = opts.no_discover or opts.pdb
         if test_to_run.find('/') != -1:
-            test_to_run = path_to_regex(test_to_run)
+            test_to_run = rb.path_to_regex(test_to_run)
         ec = call_subunit_run(test_to_run, opts.pretty, opts.subunit)
     return ec
 
@@ -318,13 +235,13 @@ def main():
         print(msg)
         exit(5)
     if opts.path:
-        regex = path_to_regex(opts.path)
+        regex = rb.path_to_regex(opts.path)
     else:
         regex = opts.regex
-    exclude_regex = construct_regex(opts.blacklist_file,
-                                    opts.whitelist_file,
-                                    regex,
-                                    opts.print_exclude)
+    exclude_regex = rb.construct_regex(opts.blacklist_file,
+                                       opts.whitelist_file,
+                                       regex,
+                                       opts.print_exclude)
     exit(_select_and_call_runner(opts, exclude_regex, others))
 
 if __name__ == '__main__':
