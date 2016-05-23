@@ -50,7 +50,7 @@ def get_parser(args):
                        help='A file name or directory of tests to run.')
     group.add_argument('--no-discover', '-n', metavar='TEST_ID',
                        help="Takes in a single test to bypasses test "
-                            "discover and just excute the test specified. "
+                            "discover and just execute the test specified. "
                             "A file name may be used in place of a test "
                             "name.")
     pretty = parser.add_mutually_exclusive_group()
