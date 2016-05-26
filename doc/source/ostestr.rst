@@ -14,6 +14,7 @@ default behavior might change in future version.
 Summary
 -------
     ostestr [-b|--blacklist_file <blacklist_file>] [-r|--regex REGEX]
+            [-w|--whitelist_file <whitelist_file>]
             [-p|--pretty] [--no-pretty] [-s|--subunit] [-l|--list]
             [-n|--no-discover <test_id>] [--slowest] [--no-slowest]
             [--pdb <test_id>] [--parallel] [--serial]
@@ -25,6 +26,9 @@ Options
   --blacklist_file BLACKLIST_FILE, -b BLACKLIST_FILE
                         Path to a blacklist file, this file contains a
                         separate regex exclude on each newline
+  --whitelist_file WHITELIST_FILE, -w WHITELIST_FILE
+                        Path to a whitelist file, this file contains a
+                        separate regex on each newline
   --regex REGEX, -r REGEX
                         A normal testr selection regex. If a blacklist file is
                         specified, the regex will be appended to the end of
@@ -133,6 +137,22 @@ regex test selection options can not be used in conjunction with the
 --no-discover or --pdb options described in the previous section. This is
 because the regex selection requires using testr under the covers to actually
 do the filtering, and those 2 options do not use testr.
+
+The dual of the blacklist file is the whitelist file which works in the exact
+same manner, except that instead of excluding regex matches it includes them.
+You can specify the path to the file with --whitelist_file/-w, for example::
+
+    $ ostestr --whitelist_file $path_to_file
+
+The format for the file is more or less identical to the blacklist file::
+
+    # Whitelist File
+    ^regex1 # Include these tests
+    .*regex2 # include those tests
+
+However, instead of excluding the matches it will include them. Note that a
+blacklist file can not be used at the same time as a whitelist file, they
+are mutually exclusive.
 
 It's also worth noting that you can use the test list option to dry run any
 selection arguments you are using. You just need to use --list/-l with your
