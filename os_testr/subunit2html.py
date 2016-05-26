@@ -617,8 +617,12 @@ class HtmlOutput(testtools.TestResult):
         # unittest does not seems to run in any particular order.
         # Here at least we want to group them together by class.
         rmap = {}
-        classes = []
+        # Differentiate between classes that have test failures so we can sort
+        # them at the top of the html page for easier troubleshooting
+        failclasses = []
+        passclasses = []
         for n, t, o, e in result_list:
+            classes = failclasses if n == 1 or n == 2 else passclasses
             if hasattr(t, '_tests'):
                 for inner_test in t._tests:
                     self._add_cls(rmap, classes, inner_test,
@@ -626,7 +630,9 @@ class HtmlOutput(testtools.TestResult):
             else:
                 self._add_cls(rmap, classes, t, (n, t, o, e))
         classort = lambda s: str(s)
-        sortedclasses = sorted(classes, key=classort)
+        sortedfailclasses = sorted(failclasses, key=classort)
+        sortedpassclasses = sorted(passclasses, key=classort)
+        sortedclasses = sortedfailclasses + sortedpassclasses
         r = [(cls, rmap[str(cls)]) for cls in sortedclasses]
         return r
 

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
 from ddt import data
 from ddt import ddt
 from subunit import RemotedTestCase
@@ -29,3 +31,46 @@ class TestSubunit2html(base.TestCase):
         cls_ = []
         obj_._add_cls({}, cls_, test_, ())
         self.assertEqual("example.path.to.test", cls_[0].name)
+
+    @data(RemotedTestCase, PlaceHolder)
+    def test_result_sorting(self, test_cls):
+        tests = []
+        for i in range(9):
+            tests.append(test_cls('example.path.to.test%d.method' % i))
+        # addFailure, addError, and addSkip need the real exc_info
+        try:
+            raise Exception('fake')
+        except Exception:
+            err = sys.exc_info()
+        obj = subunit2html.HtmlOutput()
+        obj.addSuccess(tests[3])
+        obj.addSuccess(tests[1])
+        # example.path.to.test2 has a failure
+        obj.addFailure(tests[2], err)
+        obj.addSkip(tests[0], err)
+        obj.addSuccess(tests[8])
+        # example.path.to.test5 has a failure (error)
+        obj.addError(tests[5], err)
+        # example.path.to.test4 has a failure
+        obj.addFailure(tests[4], err)
+        obj.addSuccess(tests[7])
+        # example.path.to.test6 has a failure
+        obj.addFailure(tests[6], err)
+        sorted_result = obj._sortResult(obj.result)
+        # _sortResult returns a list of results of format:
+        #   [(class, [test_result_tuple, ...]), ...]
+        # sorted by str(class)
+        #
+        # Classes with failures (2, 4, 5, and 6) should be sorted separately
+        # at the top. The rest of the classes should be in sorted order after.
+        expected_class_order = ['example.path.to.test2',
+                                'example.path.to.test4',
+                                'example.path.to.test5',
+                                'example.path.to.test6',
+                                'example.path.to.test0',
+                                'example.path.to.test1',
+                                'example.path.to.test3',
+                                'example.path.to.test7',
+                                'example.path.to.test8']
+        for i, r in enumerate(sorted_result):
+            self.assertEqual(expected_class_order[i], str(r[0]))
