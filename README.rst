@@ -25,3 +25,4 @@ Features
 * ``subunit-trace``: an output filter for a subunit stream which provides
   useful information about the run
 * ``subunit2html``: generates a test results html page from a subunit stream
+* ``generate-subunit``: generate a subunit stream for a single test
