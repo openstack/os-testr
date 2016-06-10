@@ -15,7 +15,6 @@ Contents:
    installation
    usage
    contributing
-   todo
    history
 
 Indices and tables
