@@ -180,7 +180,7 @@ def show_outcome(stream, test, print_failures=False, failonly=False,
             color = color(stream)
             break
 
-    if status == 'fail':
+    if status == 'fail' or status == 'uxsuccess':
         FAILS.append(test)
         if abbreviate:
             color.write('F', 'red')
