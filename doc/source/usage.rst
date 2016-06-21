@@ -10,3 +10,4 @@ This section contains the documentation for each of tools packaged in os-testr
    ostestr
    subunit_trace
    subunit2html
+   generate_subunit
