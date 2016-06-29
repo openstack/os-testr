@@ -58,6 +58,10 @@ pygments_style = 'sphinx'
 # html_theme = '_theme'
 # html_static_path = ['static']
 
+# If true, SmartyPants will be used to convert quotes and dashes to
+# typographically correct entities.
+html_use_smartypants = False
+
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
 

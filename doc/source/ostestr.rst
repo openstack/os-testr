@@ -217,12 +217,13 @@ Notes for running with tox
 --------------------------
 
 If you use `tox`_ for running your tests and call ostestr as the test command
-.. _tox: https://tox.readthedocs.org/en/latest/
 it's recommended that you set a posargs following ostestr on the commands
- stanza. For example::
+stanza. For example::
 
     [testenv]
     commands = ostestr {posargs}
+
+.. _tox: https://tox.readthedocs.org/en/latest/
 
 this will enable end users to pass args to configure the output, use the
 selection logic, or any other options directly from the tox cli. This will let
