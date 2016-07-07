@@ -15,11 +15,13 @@
 
 import argparse
 import copy
+import io
 import os
 import subprocess
 import sys
 
 import pbr.version
+
 from subunit import run as subunit_run
 from testtools import run as testtools_run
 
@@ -179,17 +181,29 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
 
 
 def call_subunit_run(test_id, pretty, subunit):
+    env = copy.deepcopy(os.environ)
+    cmd_save_results = ['testr', 'load', '--subunit']
+
     if pretty:
-        env = copy.deepcopy(os.environ)
+        # Use subunit run module
         cmd = ['python', '-m', 'subunit.run', test_id]
         ps = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE)
-        proc = subprocess.Popen(['subunit-trace', '--no-failure-debug', '-f'],
-                                env=env, stdin=ps.stdout)
+        # Save subunit results via testr
+        pfile = subprocess.Popen(cmd_save_results, env=env,
+                                 stdin=ps.stdout, stdout=subprocess.PIPE)
         ps.stdout.close()
+        # Transform output via subunit-trace
+        proc = subprocess.Popen(['subunit-trace', '--no-failure-debug', '-f'],
+                                env=env, stdin=pfile.stdout)
+        pfile.stdout.close()
         proc.communicate()
         return proc.returncode
     elif subunit:
-        subunit_run.main([sys.argv[0], test_id], sys.stdout)
+        sstdout = io.BytesIO()
+        subunit_run.main([sys.argv[0], test_id], sstdout)
+        pfile = subprocess.Popen(cmd_save_results, env=env,
+                                 stdin=subprocess.PIPE)
+        pfile.communicate(input=sstdout.getvalue())
     else:
         testtools_run.main([sys.argv[0], test_id], sys.stdout)
 

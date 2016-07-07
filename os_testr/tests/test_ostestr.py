@@ -18,7 +18,7 @@ test_os_testr
 
 Tests for `os_testr` module.
 """
-
+import io
 import mock
 
 from os_testr import ostestr as os_testr
@@ -115,3 +115,73 @@ class TestCallers(base.TestCase):
                                   'call_subunit_run',
                                   side_effect=_fake_run):
             os_testr.main()
+
+    def test_call_subunit_run_pretty(self):
+        '''Test call_subunit_run
+
+        Test ostestr call_subunit_run function when:
+        Pretty is True
+        '''
+        pretty = True
+        subunit = False
+
+        with mock.patch('subprocess.Popen', autospec=True) as mock_popen:
+            mock_popen.return_value.returncode = 0
+            mock_popen.return_value.stdout = io.BytesIO()
+
+            os_testr.call_subunit_run('project.tests.foo', pretty, subunit)
+
+            # Validate Popen was called three times
+            self.assertTrue(mock_popen.called, 'Popen was never called')
+            count = mock_popen.call_count
+            self.assertEqual(3, count, 'Popen was called %s'
+                             ' instead of 3 times' % count)
+
+            # Validate Popen called the right functions
+            called = mock_popen.call_args_list
+            msg = "Function %s not called"
+            function = ['python', '-m', 'subunit.run', 'project.tests.foo']
+            self.assertIn(function, called[0][0], msg % 'subunit.run')
+            function = ['testr', 'load', '--subunit']
+            self.assertIn(function, called[1][0], msg % 'testr load')
+            function = ['subunit-trace', '--no-failure-debug', '-f']
+            self.assertIn(function, called[2][0], msg % 'subunit-trace')
+
+    def test_call_subunit_run_sub(self):
+        '''Test call_subunit run
+
+        Test ostestr call_subunit_run function when:
+        Pretty is False and Subunit is True
+        '''
+        pretty = False
+        subunit = True
+
+        with mock.patch('subprocess.Popen', autospec=True) as mock_popen:
+            os_testr.call_subunit_run('project.tests.foo', pretty, subunit)
+
+            # Validate Popen was called once
+            self.assertTrue(mock_popen.called, 'Popen was never called')
+            count = mock_popen.call_count
+            self.assertEqual(1, count, 'Popen was called more than once')
+
+            # Validate Popen called the right function
+            called = mock_popen.call_args
+            function = ['testr', 'load', '--subunit']
+            self.assertIn(function, called[0], "testr load not called")
+
+    def test_call_subunit_run_testtools(self):
+        '''Test call_subunit_run
+
+        Test ostestr call_subunit_run function when:
+        Pretty is False and Subunit is False
+        '''
+        pretty = False
+        subunit = False
+
+        with mock.patch('testtools.run.main', autospec=True) as mock_run:
+            os_testr.call_subunit_run('project.tests.foo', pretty, subunit)
+
+            # Validate testtool.run was called once
+            self.assertTrue(mock_run.called, 'testtools.run was never called')
+            count = mock_run.call_count
+            self.assertEqual(1, count, 'testtools.run called more than once')
