@@ -29,10 +29,7 @@ def _get_test_list(regex, env=None):
                     'subunit.run discover']
     for line in raw_test_list:
         for exclude in exclude_list:
-            if exclude in line:
-                bad = True
-                break
-            elif not line:
+            if exclude in line or not line:
                 bad = True
                 break
         if not bad:
