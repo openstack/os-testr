@@ -14,16 +14,19 @@
 # under the License.
 
 import argparse
+import atexit
 import copy
 import os
 import subprocess
 import sys
+import tempfile
 
 import pbr.version
 from subunit import run as subunit_run
 from testtools import run as testtools_run
 
 from os_testr import regex_builder as rb
+from os_testr import testlist_builder as tlb
 
 
 __version__ = pbr.version.VersionInfo('os_testr').version_string()
@@ -98,7 +101,7 @@ def get_parser(args):
 
 
 def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
-               until_failure, color, others=None):
+               until_failure, color, list_of_tests=None, others=None):
     others = others or []
     if parallel:
         cmd = ['testr', 'run', '--parallel']
@@ -112,7 +115,16 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
         cmd.append('--subunit')
     elif not (subunit or pretty) and until_failure:
         cmd.append('--until-failure')
-    cmd.append(regex)
+    if list_of_tests:
+        test_fd, test_file_name = tempfile.mkstemp()
+        atexit.register(os.remove, test_file_name)
+        test_file = os.fdopen(test_fd, 'w')
+        test_file.write('\n'.join(list_of_tests) + '\n')
+        test_file.close()
+        cmd.extend(('--load-list', test_file_name))
+    else:
+        cmd.append(regex)
+
     env = copy.deepcopy(os.environ)
 
     if pretty:
@@ -194,15 +206,19 @@ def call_subunit_run(test_id, pretty, subunit):
         testtools_run.main([sys.argv[0], test_id], sys.stdout)
 
 
-def _select_and_call_runner(opts, exclude_regex, others):
-    ec = 1
+def _ensure_testr():
     if not os.path.isdir('.testrepository'):
         subprocess.call(['testr', 'init'])
+
+
+def _select_and_call_runner(opts, exclude_regex, others):
+    ec = 1
+    _ensure_testr()
 
     if not opts.no_discover and not opts.pdb:
         ec = call_testr(exclude_regex, opts.subunit, opts.pretty, opts.list,
                         opts.slowest, opts.parallel, opts.concurrency,
-                        opts.until_failure, opts.color, others)
+                        opts.until_failure, opts.color, None, others)
     else:
         if others:
             print('Unexpected arguments: ' + ' '.join(others))
@@ -211,6 +227,20 @@ def _select_and_call_runner(opts, exclude_regex, others):
         if test_to_run.find('/') != -1:
             test_to_run = rb.path_to_regex(test_to_run)
         ec = call_subunit_run(test_to_run, opts.pretty, opts.subunit)
+    return ec
+
+
+def _call_testr_with_list(opts, test_list, others):
+    ec = 1
+    _ensure_testr()
+
+    if opts.list:
+        print("\n".join(test_list))
+        return 0
+
+    ec = call_testr(None, opts.subunit, opts.pretty, opts.list,
+                    opts.slowest, opts.parallel, opts.concurrency,
+                    opts.until_failure, opts.color, test_list, others)
     return ec
 
 
@@ -238,11 +268,21 @@ def main():
         regex = rb.path_to_regex(opts.path)
     else:
         regex = opts.regex
-    exclude_regex = rb.construct_regex(opts.blacklist_file,
-                                       opts.whitelist_file,
-                                       regex,
-                                       opts.print_exclude)
-    exit(_select_and_call_runner(opts, exclude_regex, others))
+
+    if opts.regex and opts.blacklist_file:
+        # NOTE(afazekas): Now just the minority of the cases is handled
+        # by the testlist_builder, it can be changed in the future.
+        list_of_tests = tlb.construct_list(opts.blacklist_file,
+                                           opts.whitelist_file,
+                                           regex,
+                                           opts.print_exclude)
+        exit(_call_testr_with_list(opts, list_of_tests, others))
+    else:
+        exclude_regex = rb.construct_regex(opts.blacklist_file,
+                                           opts.whitelist_file,
+                                           regex,
+                                           opts.print_exclude)
+        exit(_select_and_call_runner(opts, exclude_regex, others))
 
 if __name__ == '__main__':
     main()
