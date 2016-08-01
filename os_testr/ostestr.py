@@ -37,14 +37,13 @@ def get_parser(args):
         description='Tool to run openstack tests')
     parser.add_argument('--version', action='version',
                         version='%s' % __version__)
-    list_files = parser.add_mutually_exclusive_group()
-    list_files.add_argument('--blacklist_file', '-b',
-                            help='Path to a blacklist file, this file '
-                                 'contains a separate regex exclude on each '
-                                 'newline')
-    list_files.add_argument('--whitelist_file', '-w',
-                            help='Path to a whitelist file, this file '
-                                 'contains a separate regex on each newline.')
+    parser.add_argument('--blacklist_file', '-b',
+                        help='Path to a blacklist file, this file '
+                             'contains a separate regex exclude on each '
+                             'newline')
+    parser.add_argument('--whitelist_file', '-w',
+                        help='Path to a whitelist file, this file '
+                             'contains a separate regex on each newline.')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--regex', '-r',
                        help='A normal testr selection regex. If a blacklist '
