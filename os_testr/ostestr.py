@@ -46,10 +46,7 @@ def get_parser(args):
                              'contains a separate regex on each newline.')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--regex', '-r',
-                       help='A normal testr selection regex. If a blacklist '
-                            'file is specified, the regex will be appended '
-                            'to the end of the generated regex from that '
-                            'file.')
+                       help='A normal testr selection regex.')
     group.add_argument('--path', metavar='FILE_OR_DIRECTORY',
                        help='A file name or directory of tests to run.')
     group.add_argument('--no-discover', '-n', metavar='TEST_ID',
@@ -57,6 +54,14 @@ def get_parser(args):
                             "discover and just execute the test specified. "
                             "A file name may be used in place of a test "
                             "name.")
+    parser.add_argument('--black-regex', '-B',
+                        help='Test rejection regex. If a test cases name '
+                        'matches on re.search() operation , '
+                        'it will be removed from the final test list. '
+                        'Effectively the black-regexp is added to '
+                        ' black regexp list, but you do need to edit a file. '
+                        'The black filtering happens after the initial '
+                        ' white selection, which by default is everything.')
     pretty = parser.add_mutually_exclusive_group()
     pretty.add_argument('--pretty', '-p', dest='pretty', action='store_true',
                         help='Print pretty output from subunit-trace. This is '
@@ -263,15 +268,22 @@ def main():
         msg = "You can not use until_failure mode with pdb or no-discover"
         print(msg)
         exit(5)
+
+    if ((opts.pdb or opts.no_discover) and (opts.black_regex)):
+        msg = "You can not use black-regex with pdb or no-discover"
+        print(msg)
+        exit(7)
+
     if opts.path:
         regex = rb.path_to_regex(opts.path)
     else:
         regex = opts.regex
 
-    if opts.blacklist_file or opts.whitelist_file:
+    if opts.blacklist_file or opts.whitelist_file or opts.black_regex:
         list_of_tests = tlb.construct_list(opts.blacklist_file,
                                            opts.whitelist_file,
                                            regex,
+                                           opts.black_regex,
                                            opts.print_exclude)
         exit(_call_testr_with_list(opts, list_of_tests, others))
     else:

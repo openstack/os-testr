@@ -42,7 +42,8 @@ def print_skips(regex, message, test_list):
     print('\n')
 
 
-def construct_list(blacklist_file, whitelist_file, regex, print_exclude):
+def construct_list(blacklist_file, whitelist_file, regex, black_regex,
+                   print_exclude):
     """Filters the discovered test cases
 
     :retrun: iterable of strings. The strings are full
@@ -67,6 +68,14 @@ def construct_list(blacklist_file, whitelist_file, regex, print_exclude):
         black_data = black_reader(blacklist_file)
     else:
         black_data = None
+
+    if black_regex:
+        msg = "Skipped bacuse of regexp provided as a command line argument:"
+        record = (re.compile(black_regex), msg, [])
+        if black_data:
+            black_data.append(record)
+        else:
+            black_data = [record]
 
     search_filter = re.compile(regex)
 

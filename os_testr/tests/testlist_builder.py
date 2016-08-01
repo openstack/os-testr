@@ -47,8 +47,23 @@ class TestConstructList(base.TestCase):
         test_lists = ['fake_test(scen)[tag,bar])', 'fake_test(scen)[egg,foo])']
         with mock.patch('os_testr.regex_builder._get_test_list',
                         return_value=test_lists):
-            result = list_builder.construct_list(None, None, 'foo', False)
+            result = list_builder.construct_list(None,
+                                                 None,
+                                                 'foo',
+                                                 None,
+                                                 False)
         self.assertEqual(list(result), ['fake_test(scen)[egg,foo])'])
+
+    def test_simple_black_re(self):
+        test_lists = ['fake_test(scen)[tag,bar])', 'fake_test(scen)[egg,foo])']
+        with mock.patch('os_testr.regex_builder._get_test_list',
+                        return_value=test_lists):
+            result = list_builder.construct_list(None,
+                                                 None,
+                                                 None,
+                                                 'foo',
+                                                 False)
+        self.assertEqual(list(result), ['fake_test(scen)[tag,bar])'])
 
     def test_blacklist(self):
         black_list = [(re.compile('foo'), 'foo not liked', [])]
@@ -60,6 +75,7 @@ class TestConstructList(base.TestCase):
                 result = list_builder.construct_list('file',
                                                      None,
                                                      'fake_test',
+                                                     None,
                                                      False)
         self.assertEqual(list(result), ['fake_test(scen)[tag,bar])'])
 
@@ -73,6 +89,7 @@ class TestConstructList(base.TestCase):
                             return_value=white_list):
                 result = list_builder.construct_list(None,
                                                      'file',
+                                                     None,
                                                      None,
                                                      False)
         self.assertEqual(set(result),
@@ -93,6 +110,7 @@ class TestConstructList(base.TestCase):
                     result = list_builder.construct_list('black_file',
                                                          'white_file',
                                                          'foo',
+                                                         None,
                                                          False)
         self.assertEqual(set(result),
                          set(('fake_test1[tg]', 'fake_test3[tg,foo]')))

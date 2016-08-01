@@ -30,9 +30,12 @@ Options
                         Path to a whitelist file, this file contains a
                         separate regex on each newline
   --regex REGEX, -r REGEX
-                        A normal testr selection regex. If a blacklist file is
-                        specified, the regex will be appended to the end of
-                        the generated regex from that file
+                        A normal testr selection regex.
+
+  --black-regex BLACK_REGEX, -B BLACK_REGEX
+                        Test rejection regex. If the test cases durring a
+                        search opration matches, it will be removed from the
+                        final test list.
   --pretty, -p
                         Print pretty output from subunit-trace. This is
                         mutually exclusive with --subunit
@@ -109,14 +112,29 @@ covers which works with pdb. For example::
 Test Selection
 --------------
 
-ostestr is designed to build on top of the test selection in testr. testr only
-exposed a regex option to select tests. This equivalent is functionality is
+ostestr intially designed to build on top of the test selection in testr.
+testr only exposed a regex option to select tests. This functionality is
 exposed via the --regex option. For example::
 
     $ ostestr --regex 'magic\.regex'
 
 This will do a straight passthrough of the provided regex to testr.
-Additionally, ostestr allows you to specify a blacklist file to define a set
+When ostestr is asked to do more complex test selection than a sinlge regex,
+it will ask testr for a full list of tests than passing the filtered test list
+back to testr.
+ostestr allows you do to do simple test exclusion via apssing rejection/black regexp::
+
+    $ ostestr --back-regex 'slow_tests|bad_tests'
+
+ostestr also allow you to combine these argumants::
+
+    $ ostestr --regex ui\.interface --back-regexp 'slow_tests|bad_tests'
+
+Here first we selected all tests which  matches to 'ui\.interface',
+than we are dropping all test which matches
+'slow_tests|bad_tests' from the final list.
+
+ostestr also allows you to specify a blacklist file to define a set
 of regexes to exclude. You can specify a blacklist file with the
 --blacklist_file/-b option, for example::
 
@@ -129,17 +147,19 @@ start of a comment on a line. For example::
     ^regex1 # Excludes these tests
     .*regex2 # exclude those tests
 
-Will generate a regex to pass to testr which will exclude both any tests
+The regexp used in the blacklist File or passed as argument, will be used
+to drop tests from the initial selection list.
+Will generate a list which will exclude both any tests
 matching '^regex1' and '.*regex2'. If a blacklist file is used in conjunction
-with the --regex option the regex specified with --regex will be appended to
-the generated output from the --blacklist_file. Also it's worth noting that the
+with the --regex option the regex specified with --regex will be used for the intial
+test selection. Also it's worth noting that the
 regex test selection options can not be used in conjunction with the
 --no-discover or --pdb options described in the previous section. This is
 because the regex selection requires using testr under the covers to actually
 do the filtering, and those 2 options do not use testr.
 
-The dual of the blacklist file is the whitelist file which works in the exact
-same manner, except that instead of excluding regex matches it includes them.
+The dual of the blacklist file is the whitelist file which altering the initial
+test selection regex, by joining the white list elements by '|'.
 You can specify the path to the file with --whitelist_file/-w, for example::
 
     $ ostestr --whitelist_file $path_to_file
@@ -150,9 +170,7 @@ The format for the file is more or less identical to the blacklist file::
     ^regex1 # Include these tests
     .*regex2 # include those tests
 
-However, instead of excluding the matches it will include them. Note that a
-blacklist file can not be used at the same time as a whitelist file, they
-are mutually exclusive.
+However, instead of excluding the matches it will include them.
 
 It's also worth noting that you can use the test list option to dry run any
 selection arguments you are using. You just need to use --list/-l with your
