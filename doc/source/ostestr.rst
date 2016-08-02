@@ -13,8 +13,8 @@ default behavior might change in future version.
 
 Summary
 -------
-    ostestr [-b|--blacklist_file <blacklist_file>] [-r|--regex REGEX]
-            [-w|--whitelist_file <whitelist_file>]
+    ostestr [-b|--blacklist-file <blacklist_file>] [-r|--regex REGEX]
+            [-w|--whitelist-file <whitelist_file>]
             [-p|--pretty] [--no-pretty] [-s|--subunit] [-l|--list]
             [-n|--no-discover <test_id>] [--slowest] [--no-slowest]
             [--pdb <test_id>] [--parallel] [--serial]
@@ -23,10 +23,10 @@ Summary
 Options
 -------
 
-  --blacklist_file BLACKLIST_FILE, -b BLACKLIST_FILE
+  --blacklist-file BLACKLIST_FILE, -b BLACKLIST_FILE
                         Path to a blacklist file, this file contains a
                         separate regex exclude on each newline
-  --whitelist_file WHITELIST_FILE, -w WHITELIST_FILE
+  --whitelist-file WHITELIST_FILE, -w WHITELIST_FILE
                         Path to a whitelist file, this file contains a
                         separate regex on each newline
   --regex REGEX, -r REGEX
