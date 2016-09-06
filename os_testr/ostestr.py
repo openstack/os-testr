@@ -122,7 +122,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
         test_file.write('\n'.join(list_of_tests) + '\n')
         test_file.close()
         cmd.extend(('--load-list', test_file_name))
-    else:
+    elif regex:
         cmd.append(regex)
 
     env = copy.deepcopy(os.environ)
@@ -269,20 +269,14 @@ def main():
     else:
         regex = opts.regex
 
-    if opts.regex and opts.blacklist_file:
-        # NOTE(afazekas): Now just the minority of the cases is handled
-        # by the testlist_builder, it can be changed in the future.
+    if opts.blacklist_file or opts.whitelist_file:
         list_of_tests = tlb.construct_list(opts.blacklist_file,
                                            opts.whitelist_file,
                                            regex,
                                            opts.print_exclude)
         exit(_call_testr_with_list(opts, list_of_tests, others))
     else:
-        exclude_regex = rb.construct_regex(opts.blacklist_file,
-                                           opts.whitelist_file,
-                                           regex,
-                                           opts.print_exclude)
-        exit(_select_and_call_runner(opts, exclude_regex, others))
+        exit(_select_and_call_runner(opts, regex, others))
 
 if __name__ == '__main__':
     main()

@@ -77,3 +77,22 @@ class TestConstructList(base.TestCase):
                                                      False)
         self.assertEqual(set(result),
                          set(('fake_test1[tg]', 'fake_test2[tg]')))
+
+    def test_whitelist_blacklist_re(self):
+        white_list = 'fake_test1|fake_test2'
+        test_lists = ['fake_test1[tg]', 'fake_test2[spam]',
+                      'fake_test3[tg,foo]', 'fake_test4[spam]']
+        black_list = [(re.compile('spam'), 'spam not liked', [])]
+        white_getter = 'os_testr.regex_builder.get_regex_from_whitelist_file'
+        with mock.patch('os_testr.regex_builder._get_test_list',
+                        return_value=test_lists):
+            with mock.patch(white_getter,
+                            return_value=white_list):
+                with mock.patch('os_testr.testlist_builder.black_reader',
+                                return_value=black_list):
+                    result = list_builder.construct_list('black_file',
+                                                         'white_file',
+                                                         'foo',
+                                                         False)
+        self.assertEqual(set(result),
+                         set(('fake_test1[tg]', 'fake_test3[tg,foo]')))

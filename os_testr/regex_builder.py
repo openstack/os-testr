@@ -68,6 +68,7 @@ def get_regex_from_whitelist_file(file_path):
 
 
 def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
+    """Deprecated, please use testlist_builder.construct_list instead."""
     if not blacklist_file:
         exclude_regex = ''
     else:
