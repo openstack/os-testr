@@ -144,7 +144,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
         failed = False
         if not test_list:
             print("No tests to run")
-            exit(1)
+            return 1
         # If pretty or subunit output is desired manually loop forever over
         # test individually and generate the desired output in a linear series
         # this avoids 1411804 while retaining most of the desired behavior
@@ -168,13 +168,13 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                     except SystemExit as e:
                         if e > 0:
                             print("Ran %s tests without failure" % count)
-                            exit(1)
+                            return 1
                         else:
                             raise
                 count = count + 1
             if failed:
                 print("Ran %s tests without failure" % count)
-                exit(0)
+                return 0
     # If not until-failure special case call testr like normal
     elif pretty and not list_tests:
         cmd.extend(others)
@@ -248,35 +248,35 @@ def _call_testr_with_list(opts, test_list, others):
     return ec
 
 
-def main():
-    opts, others = get_parser(sys.argv[1:])
+def ostestr(args):
+    opts, others = get_parser(args)
     if opts.pretty and opts.subunit:
         msg = ('Subunit output and pretty output cannot be specified at the '
                'same time')
         print(msg)
-        exit(2)
+        return 2
     if opts.list and opts.no_discover:
         msg = ('you can not list tests when you are bypassing discovery to '
                'run a single test')
         print(msg)
-        exit(3)
+        return 3
     if not opts.parallel and opts.concurrency:
         msg = "You can't specify a concurrency to use when running serially"
         print(msg)
-        exit(4)
+        return 4
     if (opts.pdb or opts.no_discover) and opts.until_failure:
         msg = "You can not use until_failure mode with pdb or no-discover"
         print(msg)
-        exit(5)
+        return 5
     if ((opts.pdb or opts.no_discover) and
             (opts.blacklist_file or opts.whitelist_file)):
         msg = "You can not use blacklist or whitelist with pdb or no-discover"
         print(msg)
-        exit(6)
+        return 6
     if ((opts.pdb or opts.no_discover) and (opts.black_regex)):
         msg = "You can not use black-regex with pdb or no-discover"
         print(msg)
-        exit(7)
+        return 7
 
     if opts.path:
         regex = rb.path_to_regex(opts.path)
@@ -289,9 +289,13 @@ def main():
                                            regex,
                                            opts.black_regex,
                                            opts.print_exclude)
-        exit(_call_testr_with_list(opts, list_of_tests, others))
+        return (_call_testr_with_list(opts, list_of_tests, others))
     else:
-        exit(_select_and_call_runner(opts, regex, others))
+        return (_select_and_call_runner(opts, regex, others))
+
+
+def main():
+    exit(ostestr(sys.argv[1:]))
 
 if __name__ == '__main__':
     main()
