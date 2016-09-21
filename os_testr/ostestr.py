@@ -268,7 +268,11 @@ def main():
         msg = "You can not use until_failure mode with pdb or no-discover"
         print(msg)
         exit(5)
-
+    if ((opts.pdb or opts.no_discover) and
+            (opts.blacklist_file or opts.whitelist_file)):
+        msg = "You can not use blacklist or whitelist with pdb or no-discover"
+        print(msg)
+        exit(6)
     if ((opts.pdb or opts.no_discover) and (opts.black_regex)):
         msg = "You can not use black-regex with pdb or no-discover"
         print(msg)
