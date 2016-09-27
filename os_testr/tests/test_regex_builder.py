@@ -168,3 +168,9 @@ regex_b"""
 
             expected_regex = 'regex_a|regex_b'
             self.assertEqual(result, expected_regex)
+
+
+class TestGetTestList(base.TestCase):
+    def test__get_test_list(self):
+        test_list = os_testr._get_test_list('test__get_test_list')
+        self.assertIn('test__get_test_list', test_list[0])
