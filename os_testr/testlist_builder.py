@@ -94,8 +94,11 @@ def construct_list(blacklist_file, whitelist_file, regex, black_regex,
     for (rex, msg, s_list) in black_data:
         for test_case in list_of_test_cases:
             if rex.search(test_case):
-                set_of_test_cases.remove(test_case)
-                s_list.append(test_case)
+                # NOTE(mtreinish): In the case of overlapping regex the test
+                # case might have already been removed from the set of tests
+                if test_case in set_of_test_cases:
+                    set_of_test_cases.remove(test_case)
+                    s_list.append(test_case)
 
     if print_exclude:
         for (rex, msg, s_list) in black_data:

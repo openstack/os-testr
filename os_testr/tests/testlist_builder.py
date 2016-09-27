@@ -114,3 +114,25 @@ class TestConstructList(base.TestCase):
                                                          False)
         self.assertEqual(set(result),
                          set(('fake_test1[tg]', 'fake_test3[tg,foo]')))
+
+    def test_overlapping_black_regex(self):
+
+        black_list = [(re.compile('compute.test_keypairs.KeypairsTestV210'),
+                       '', []),
+                      (re.compile('compute.test_keypairs.KeypairsTestV21'),
+                       '', [])]
+        test_lists = [
+            'compute.test_keypairs.KeypairsTestV210.test_create_keypair',
+            'compute.test_keypairs.KeypairsTestV21.test_create_keypair',
+            'compute.test_fake.FakeTest.test_fake_test']
+        with mock.patch('os_testr.regex_builder._get_test_list',
+                        return_value=test_lists):
+            with mock.patch('os_testr.testlist_builder.black_reader',
+                            return_value=black_list):
+                result = list_builder.construct_list('file',
+                                                     None,
+                                                     'fake_test',
+                                                     None,
+                                                     False)
+        self.assertEqual(
+            list(result), ['compute.test_fake.FakeTest.test_fake_test'])
