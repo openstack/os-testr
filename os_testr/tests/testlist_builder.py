@@ -38,7 +38,7 @@ class TestBlackReader(base.TestCase):
             self.assertEqual(r[2], [])
             if r[1] == 'note':
                 note_cnt += 1
-            self.assertIn('search', dir(r[0]))  # like a compiled regexp
+            self.assertIn('search', dir(r[0]))  # like a compiled regex
         self.assertEqual(note_cnt, 4)
 
 

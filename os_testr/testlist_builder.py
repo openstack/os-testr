@@ -70,7 +70,7 @@ def construct_list(blacklist_file, whitelist_file, regex, black_regex,
         black_data = None
 
     if black_regex:
-        msg = "Skipped bacuse of regexp provided as a command line argument:"
+        msg = "Skipped because of regex provided as a command line argument:"
         record = (re.compile(black_regex), msg, [])
         if black_data:
             black_data.append(record)

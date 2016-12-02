@@ -58,8 +58,8 @@ def get_parser(args):
                         help='Test rejection regex. If a test cases name '
                         'matches on re.search() operation , '
                         'it will be removed from the final test list. '
-                        'Effectively the black-regexp is added to '
-                        ' black regexp list, but you do need to edit a file. '
+                        'Effectively the black-regex is added to '
+                        ' black regex list, but you do need to edit a file. '
                         'The black filtering happens after the initial '
                         ' white selection, which by default is everything.')
     pretty = parser.add_mutually_exclusive_group()

@@ -122,13 +122,13 @@ This will do a straight passthrough of the provided regex to testr.
 When ostestr is asked to do more complex test selection than a sinlge regex,
 it will ask testr for a full list of tests than passing the filtered test list
 back to testr.
-ostestr allows you do to do simple test exclusion via apssing rejection/black regexp::
+ostestr allows you do to do simple test exclusion via apssing rejection/black regex::
 
-    $ ostestr --back-regex 'slow_tests|bad_tests'
+    $ ostestr --black-regex 'slow_tests|bad_tests'
 
 ostestr also allow you to combine these argumants::
 
-    $ ostestr --regex ui\.interface --back-regexp 'slow_tests|bad_tests'
+    $ ostestr --regex ui\.interface --black-regex 'slow_tests|bad_tests'
 
 Here first we selected all tests which  matches to 'ui\.interface',
 than we are dropping all test which matches
@@ -147,7 +147,7 @@ start of a comment on a line. For example::
     ^regex1 # Excludes these tests
     .*regex2 # exclude those tests
 
-The regexp used in the blacklist File or passed as argument, will be used
+The regex used in the blacklist File or passed as argument, will be used
 to drop tests from the initial selection list.
 Will generate a list which will exclude both any tests
 matching '^regex1' and '.*regex2'. If a blacklist file is used in conjunction
