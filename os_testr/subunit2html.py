@@ -617,18 +617,31 @@ class HtmlOutput(testtools.TestResult):
         # unittest does not seems to run in any particular order.
         # Here at least we want to group them together by class.
         rmap = {}
+        classes = []
         # Differentiate between classes that have test failures so we can sort
         # them at the top of the html page for easier troubleshooting
-        failclasses = []
-        passclasses = []
+        clsmap_has_failure = collections.defaultdict(bool)
+
+        def track_has_failure(name, n):
+            if n == 1 or n == 2:
+                clsmap_has_failure[name] = True
+
         for n, t, o, e in result_list:
-            classes = failclasses if n == 1 or n == 2 else passclasses
             if hasattr(t, '_tests'):
                 for inner_test in t._tests:
-                    self._add_cls(rmap, classes, inner_test,
-                                  (n, inner_test, o, e))
+                    name = self._add_cls(rmap, classes, inner_test,
+                                         (n, inner_test, o, e))
+                    track_has_failure(name, n)
             else:
-                self._add_cls(rmap, classes, t, (n, t, o, e))
+                name = self._add_cls(rmap, classes, t, (n, t, o, e))
+                track_has_failure(name, n)
+
+        failclasses = []
+        passclasses = []
+        for cls in classes:
+            append_to = (failclasses if clsmap_has_failure[str(cls)]
+                         else passclasses)
+            append_to.append(cls)
         classort = lambda s: str(s)
         sortedfailclasses = sorted(failclasses, key=classort)
         sortedpassclasses = sorted(passclasses, key=classort)
@@ -649,6 +662,7 @@ class HtmlOutput(testtools.TestResult):
             rmap[str(cls)] = []
             classes.append(cls)
         rmap[str(cls)].append(data_tuple)
+        return str(cls)
 
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc

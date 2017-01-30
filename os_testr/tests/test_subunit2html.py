@@ -54,8 +54,10 @@ class TestSubunit2html(base.TestCase):
         # example.path.to.test4 has a failure
         obj.addFailure(tests[4], err)
         obj.addSuccess(tests[7])
-        # example.path.to.test6 has a failure
+        # example.path.to.test6 has a success, a failure, and a success
+        obj.addSuccess(tests[6])
         obj.addFailure(tests[6], err)
+        obj.addSuccess(tests[6])
         sorted_result = obj._sortResult(obj.result)
         # _sortResult returns a list of results of format:
         #   [(class, [test_result_tuple, ...]), ...]
