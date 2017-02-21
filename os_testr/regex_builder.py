@@ -19,7 +19,10 @@ import subprocess
 
 def _get_test_list(regex, env=None):
     env = env or copy.deepcopy(os.environ)
-    proc = subprocess.Popen(['testr', 'list-tests', regex], env=env,
+    testr_args = ['testr', 'list-tests']
+    if regex:
+        testr_args.append(regex)
+    proc = subprocess.Popen(testr_args, env=env,
                             stdout=subprocess.PIPE, universal_newlines=True)
     out = proc.communicate()[0]
     raw_test_list = out.split('\n')
