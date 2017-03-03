@@ -174,3 +174,16 @@ class TestGetTestList(base.TestCase):
     def test__get_test_list(self):
         test_list = os_testr._get_test_list('test__get_test_list')
         self.assertIn('test__get_test_list', test_list[0])
+
+    def test__get_test_list_regex_is_empty(self):
+        test_list = os_testr._get_test_list('')
+        self.assertIn('', test_list[0])
+
+    def test__get_test_list_regex_is_none(self):
+        test_list = os_testr._get_test_list(None)
+        # NOTE(masayukig): We should get all of the tests. So we should have
+        # more than one test case.
+        self.assertGreater(len(test_list), 1)
+        self.assertIn('os_testr.tests.test_regex_builder.'
+                      'TestGetTestList.test__get_test_list_regex_is_none',
+                      test_list)
