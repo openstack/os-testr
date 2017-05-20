@@ -102,3 +102,6 @@ class TestReturnCodes(base.TestCase):
 
     def test_list(self):
         self.assertRunExit('ostestr --list', 0)
+
+    def test_no_test(self):
+        self.assertRunExit('ostestr --regex a --black-regex a', 8)

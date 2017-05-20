@@ -256,6 +256,10 @@ def _call_testr_with_list(opts, test_list, others):
         print("\n".join(test_list))
         return 0
 
+    if not test_list:
+        print("No testcase selected to run")
+        return 8
+
     ec = call_testr(None, opts.subunit, opts.pretty, opts.list,
                     opts.slowest, opts.parallel, opts.concurrency,
                     opts.until_failure, opts.color, test_list, others)
