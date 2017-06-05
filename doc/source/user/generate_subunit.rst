@@ -11,6 +11,7 @@ of generate-subunit.
 
 Summary
 -------
+::
 
     generate-subunit timestamp secs [status] [test_id]
 

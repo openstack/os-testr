@@ -8,6 +8,7 @@ html page
 
 Summary
 -------
+::
 
     subunit2html subunit_stream [output]
 

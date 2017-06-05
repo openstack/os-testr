@@ -13,6 +13,8 @@ default behavior might change in future version.
 
 Summary
 -------
+::
+
     ostestr [-b|--blacklist-file <blacklist_file>] [-r|--regex REGEX]
             [-w|--whitelist-file <whitelist_file>]
             [-p|--pretty] [--no-pretty] [-s|--subunit] [-l|--list]
@@ -23,53 +25,53 @@ Summary
 Options
 -------
 
-  --blacklist-file BLACKLIST_FILE, -b BLACKLIST_FILE
-                        Path to a blacklist file, this file contains a
-                        separate regex exclude on each newline
-  --whitelist-file WHITELIST_FILE, -w WHITELIST_FILE
-                        Path to a whitelist file, this file contains a
-                        separate regex on each newline
-  --regex REGEX, -r REGEX
-                        A normal testr selection regex.
+--blacklist-file BLACKLIST_FILE, -b BLACKLIST_FILE
+                      Path to a blacklist file, this file contains a
+                      separate regex exclude on each newline
+--whitelist-file WHITELIST_FILE, -w WHITELIST_FILE
+                      Path to a whitelist file, this file contains a
+                      separate regex on each newline
+--regex REGEX, -r REGEX
+                      A normal testr selection regex.
 
-  --black-regex BLACK_REGEX, -B BLACK_REGEX
-                        Test rejection regex. If the test cases durring a
-                        search opration matches, it will be removed from the
-                        final test list.
-  --pretty, -p
-                        Print pretty output from subunit-trace. This is
-                        mutually exclusive with --subunit
-  --no-pretty
-                        Disable the pretty output with subunit-trace
-  --subunit, -s
-                        output the raw subunit v2 from the test run this is
-                        mutually exclusive with --pretty
-  --list, -l
-                        List all the tests which will be run.
-  --no-discover TEST_ID, -n TEST_ID
-                        Takes in a single test to bypasses test discover and
-                        just execute the test specified
-  --slowest
-                        After the test run print the slowest tests
-  --no-slowest
-                        After the test run don't print the slowest tests
-  --pdb TEST_ID
-                        Run a single test that has pdb traces added
-  --parallel
-                        Run tests in parallel (this is the default)
-  --serial
-                        Run tests serially
-  --concurrency WORKERS, -c WORKERS
-                        The number of workers to use when running in parallel.
-                        By default this is the number of cpus
-  --until-failure
-                        Run the tests in a loop until a failure is
-                        encountered. Running with subunit or prettyoutput
-                        enable will force the loop to run testsserially
-  --print-exclude
-                        If an exclude file is used this option will prints the
-                        comment from the same line and all skipped tests
-                        before the test run
+--black-regex BLACK_REGEX, -B BLACK_REGEX
+                      Test rejection regex. If the test cases durring a
+                      search opration matches, it will be removed from the
+                      final test list.
+--pretty, -p
+                      Print pretty output from subunit-trace. This is
+                      mutually exclusive with --subunit
+--no-pretty
+                      Disable the pretty output with subunit-trace
+--subunit, -s
+                      output the raw subunit v2 from the test run this is
+                      mutually exclusive with --pretty
+--list, -l
+                      List all the tests which will be run.
+--no-discover TEST_ID, -n TEST_ID
+                      Takes in a single test to bypasses test discover and
+                      just execute the test specified
+--slowest
+                      After the test run print the slowest tests
+--no-slowest
+                      After the test run don't print the slowest tests
+--pdb TEST_ID
+                      Run a single test that has pdb traces added
+--parallel
+                      Run tests in parallel (this is the default)
+--serial
+                      Run tests serially
+--concurrency WORKERS, -c WORKERS
+                      The number of workers to use when running in parallel.
+                      By default this is the number of cpus
+--until-failure
+                      Run the tests in a loop until a failure is
+                      encountered. Running with subunit or prettyoutput
+                      enable will force the loop to run testsserially
+--print-exclude
+                      If an exclude file is used this option will prints the
+                      comment from the same line and all skipped tests
+                      before the test run
 
 Running Tests
 -------------

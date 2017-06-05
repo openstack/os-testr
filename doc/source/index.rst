@@ -1,4 +1,3 @@
-====================================
 Welcome to os-testr's documentation!
 ====================================
 
@@ -17,7 +16,8 @@ A testr wrapper to provide functionality for OpenStack projects.
 * Source: http://git.openstack.org/cgit/openstack/os-testr
 * Bugs: http://bugs.launchpad.net/os-testr
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
@@ -29,7 +29,4 @@ Contents:
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
-
