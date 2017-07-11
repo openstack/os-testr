@@ -1,21 +1,30 @@
-.. os-testr documentation master file, created by
-   sphinx-quickstart on Tue Jul  9 22:26:36 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
+====================================
 Welcome to os-testr's documentation!
-========================================================
+====================================
+
+.. image:: https://img.shields.io/pypi/v/os-testr.svg
+    :target: https://pypi.python.org/pypi/os-testr/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/os-testr.svg
+    :target: https://pypi.python.org/pypi/os-testr/
+    :alt: Downloads
+
+A testr wrapper to provide functionality for OpenStack projects.
+
+* Free software: Apache license
+* Documentation: http://docs.openstack.org/os-testr/
+* Source: http://git.openstack.org/cgit/openstack/os-testr
+* Bugs: http://bugs.launchpad.net/os-testr
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   readme
-   installation
-   usage
-   contributing
-   history
+   install/index
+   contributor/index
+   user/index
 
 Indices and tables
 ==================
