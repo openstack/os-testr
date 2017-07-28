@@ -34,13 +34,13 @@ class TestReturnCodes(base.TestCase):
         self.test_dir = os.path.join(self.directory, 'tests')
         os.mkdir(self.test_dir)
         # Setup Test files
-        self.testr_conf_file = os.path.join(self.directory, '.testr.conf')
+        self.testr_conf_file = os.path.join(self.directory, '.stestr.conf')
         self.setup_cfg_file = os.path.join(self.directory, 'setup.cfg')
         self.passing_file = os.path.join(self.test_dir, 'test_passing.py')
         self.failing_file = os.path.join(self.test_dir, 'test_failing.py')
         self.init_file = os.path.join(self.test_dir, '__init__.py')
         self.setup_py = os.path.join(self.directory, 'setup.py')
-        shutil.copy('os_testr/tests/files/testr-conf', self.testr_conf_file)
+        shutil.copy('os_testr/tests/files/stestr-conf', self.testr_conf_file)
         shutil.copy('os_testr/tests/files/passing-tests', self.passing_file)
         shutil.copy('os_testr/tests/files/failing-tests', self.failing_file)
         shutil.copy('setup.py', self.setup_py)
@@ -104,4 +104,4 @@ class TestReturnCodes(base.TestCase):
         self.assertRunExit('ostestr --list', 0)
 
     def test_no_test(self):
-        self.assertRunExit('ostestr --regex a --black-regex a', 8)
+        self.assertRunExit('ostestr --regex a --black-regex a', 1)

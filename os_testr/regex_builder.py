@@ -19,7 +19,7 @@ import subprocess
 
 def _get_test_list(regex, env=None):
     env = env or copy.deepcopy(os.environ)
-    testr_args = ['testr', 'list-tests']
+    testr_args = ['stestr', 'list']
     if regex:
         testr_args.append(regex)
     proc = subprocess.Popen(testr_args, env=env,
