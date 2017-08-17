@@ -61,12 +61,13 @@ def path_to_regex(path):
 
 def get_regex_from_whitelist_file(file_path):
     lines = []
-    for line in open(file_path).read().splitlines():
-        split_line = line.strip().split('#')
-        # Before the # is the regex
-        line_regex = split_line[0].strip()
-        if line_regex:
-            lines.append(line_regex)
+    with open(file_path) as white_file:
+        for line in white_file.read().splitlines():
+            split_line = line.strip().split('#')
+            # Before the # is the regex
+            line_regex = split_line[0].strip()
+            if line_regex:
+                lines.append(line_regex)
     return '|'.join(lines)
 
 
@@ -75,27 +76,28 @@ def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
     if not blacklist_file:
         exclude_regex = ''
     else:
-        black_file = open(blacklist_file, 'r')
-        exclude_regex = ''
-        for line in black_file:
-            raw_line = line.strip()
-            split_line = raw_line.split('#')
-            # Before the # is the regex
-            line_regex = split_line[0].strip()
-            if len(split_line) > 1:
-                # After the # is a comment
-                comment = split_line[1].strip()
-            else:
-                comment = ''
-            if line_regex:
-                if print_exclude:
-                    print_skips(line_regex, comment)
-                if exclude_regex:
-                    exclude_regex = '|'.join([line_regex, exclude_regex])
+
+        with open(blacklist_file, 'r') as black_file:
+            exclude_regex = ''
+            for line in black_file:
+                raw_line = line.strip()
+                split_line = raw_line.split('#')
+                # Before the # is the regex
+                line_regex = split_line[0].strip()
+                if len(split_line) > 1:
+                    # After the # is a comment
+                    comment = split_line[1].strip()
                 else:
-                    exclude_regex = line_regex
-        if exclude_regex:
-            exclude_regex = "^((?!" + exclude_regex + ").)*$"
+                    comment = ''
+                if line_regex:
+                    if print_exclude:
+                        print_skips(line_regex, comment)
+                    if exclude_regex:
+                        exclude_regex = '|'.join([line_regex, exclude_regex])
+                    else:
+                        exclude_regex = line_regex
+            if exclude_regex:
+                exclude_regex = "^((?!" + exclude_regex + ").)*$"
     if regex:
         exclude_regex += regex
     if whitelist_file:
