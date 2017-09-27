@@ -106,6 +106,35 @@ def get_parser(args):
     return parser.parse_known_args(args)
 
 
+def _parse_testrconf():
+    # Parse the legacy .testr.conf file.
+    test_dir = None
+    top_dir = None
+    group_regex = None
+
+    with open('.testr.conf', 'r') as testr_conf_file:
+        config = six.moves.configparser.ConfigParser()
+        config.readfp(testr_conf_file)
+        test_command = config.get('DEFAULT', 'test_command')
+        group_regex = None
+        if config.has_option('DEFAULT', 'group_regex'):
+            group_regex = config.get('DEFAULT', 'group_regex')
+
+    for line in test_command.split('\n'):
+        if 'subunit.run discover' in line:
+            command_parts = line.split(' ')
+            top_dir_present = '-t' in line
+            for idx, val in enumerate(command_parts):
+                if top_dir_present:
+                    if val == '-t':
+                        top_dir = command_parts[idx + 1]
+                        test_dir = command_parts[idx + 2]
+                else:
+                    if val == 'discover':
+                        test_dir = command_parts[idx + 1]
+    return (test_dir, top_dir, group_regex)
+
+
 def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                until_failure, color, others=None, blacklist_file=None,
                whitelist_file=None, black_regex=None, load_list=None):
@@ -119,26 +148,7 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
                'in the stestr git repository.')
         warnings.warn(msg)
 
-        with open('.testr.conf', 'r') as testr_conf_file:
-            config = six.moves.configparser.ConfigParser()
-            config.readfp(testr_conf_file)
-            test_command = config.get('DEFAULT', 'test_command')
-            group_regex = None
-            if config.has_option('DEFAULT', 'group_regex'):
-                group_regex = config.get('DEFAULT', 'group_regex')
-
-        for line in test_command.split('\n'):
-            if 'subunit.run discover' in line:
-                command_parts = line.split(' ')
-                top_dir_present = '-t' in line
-                for idx, val in enumerate(command_parts):
-                    if top_dir_present:
-                        if val == '-t':
-                            top_dir = command_parts[idx + 1]
-                            test_dir = command_parts[idx + 2]
-                    else:
-                        if val == 'discover':
-                            test_dir = command_parts[idx + 2]
+        test_dir, top_dir, group_regex = _parse_testrconf()
     elif not os.path.isfile(
         '.testr.conf') and not os.path.isfile('.stestr.conf'):
         msg = ('No .stestr.conf found, please create one.')

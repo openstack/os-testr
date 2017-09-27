@@ -185,3 +185,61 @@ class TestCallers(base.TestCase):
             self.assertTrue(mock_run.called, 'testtools.run was never called')
             count = mock_run.call_count
             self.assertEqual(1, count, 'testtools.run called more than once')
+
+    def test_parse_legacy_testrconf_discover(self):
+        '''Test _parse_testrconf
+
+        Test ostestr _parse_testrconf function when:
+        -t is not specified and discover is specified
+        '''
+        testrconf_data = u"""
+[DEFAULT]
+test_command=OS_STDOUT_CAPTURE=${OS_STDOUT_CAPTURE:-1} \
+             OS_STDERR_CAPTURE=${OS_STDERR_CAPTURE:-1} \
+             OS_TEST_TIMEOUT=${OS_TEST_TIMEOUT:-60} \
+             ${PYTHON:-python} -m subunit.run discover mytestdir \
+             $LISTOPT $IDOPTION
+test_id_option=--load-list $IDFILE
+test_list_option=--list
+group_regex=([^\.]+\.)+
+"""
+        with io.StringIO() as testrconf_data_file:
+            testrconf_data_file.write(testrconf_data)
+            testrconf_data_file.seek(0)
+
+            with mock.patch('six.moves.builtins.open',
+                            return_value=testrconf_data_file, autospec=True):
+                parsed_values = os_testr._parse_testrconf()
+                # validate the discovery of the options from the legacy
+                # .testr.conf
+                self.assertEqual(parsed_values, ('mytestdir', None,
+                                                 '([^\.]+\.)+'))
+
+    def test_parse_legacy_testrconf_topdir(self):
+        '''Test parse_testrconf
+
+        Test ostestr _parse_testrconf function when:
+        -t is specified
+        '''
+        testrconf_data = u"""
+[DEFAULT]
+test_command=OS_STDOUT_CAPTURE=${OS_STDOUT_CAPTURE:-1} \
+             OS_STDERR_CAPTURE=${OS_STDERR_CAPTURE:-1} \
+             OS_TEST_TIMEOUT=${OS_TEST_TIMEOUT:-60} \
+             ${PYTHON:-python} -m subunit.run discover -t .. mytestdir \
+             $LISTOPT $IDOPTION
+test_id_option=--load-list $IDFILE
+test_list_option=--list
+group_regex=([^\.]+\.)+
+"""
+        with io.StringIO() as testrconf_data_file:
+            testrconf_data_file.write(testrconf_data)
+            testrconf_data_file.seek(0)
+
+            with mock.patch('six.moves.builtins.open',
+                            return_value=testrconf_data_file, autospec=True):
+                parsed_values = os_testr._parse_testrconf()
+                # validate the discovery of the options from the legacy
+                # .testr.conf
+                self.assertEqual(parsed_values, ('mytestdir', '..',
+                                                 '([^\.]+\.)+'))
