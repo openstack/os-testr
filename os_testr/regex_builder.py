@@ -71,34 +71,46 @@ def get_regex_from_whitelist_file(file_path):
     return '|'.join(lines)
 
 
+def get_regex_from_blacklist_file(file_path, print_exclude=False):
+    exclude_regex = ''
+    with open(file_path, 'r') as black_file:
+        exclude_regex = ''
+        for line in black_file:
+            raw_line = line.strip()
+            split_line = raw_line.split('#')
+            # Before the # is the regex
+            line_regex = split_line[0].strip()
+            if len(split_line) > 1:
+                # After the # is a comment
+                comment = split_line[1].strip()
+            else:
+                comment = ''
+            if line_regex:
+                if print_exclude:
+                    print_skips(line_regex, comment)
+                if exclude_regex:
+                    exclude_regex = '|'.join([line_regex, exclude_regex])
+                else:
+                    exclude_regex = line_regex
+        if exclude_regex:
+            exclude_regex = "(?!" + exclude_regex + ")"
+    return exclude_regex
+
+
 def construct_regex(blacklist_file, whitelist_file, regex, print_exclude):
     """Deprecated, please use testlist_builder.construct_list instead."""
-    if not blacklist_file:
-        exclude_regex = ''
-    else:
-        with open(blacklist_file, 'r') as black_file:
-            exclude_regex = ''
-            for line in black_file:
-                raw_line = line.strip()
-                split_line = raw_line.split('#')
-                # Before the # is the regex
-                line_regex = split_line[0].strip()
-                if len(split_line) > 1:
-                    # After the # is a comment
-                    comment = split_line[1].strip()
-                else:
-                    comment = ''
-                if line_regex:
-                    if print_exclude:
-                        print_skips(line_regex, comment)
-                    if exclude_regex:
-                        exclude_regex = '|'.join([line_regex, exclude_regex])
-                    else:
-                        exclude_regex = line_regex
-            if exclude_regex:
-                exclude_regex = "^((?!" + exclude_regex + ").)*$"
-    if regex:
-        exclude_regex += regex
+    bregex = ''
+    wregex = ''
+    pregex = ''
+
+    if blacklist_file:
+        bregex = get_regex_from_blacklist_file(blacklist_file, print_exclude)
     if whitelist_file:
-        exclude_regex += '%s' % get_regex_from_whitelist_file(whitelist_file)
-    return exclude_regex
+        wregex = get_regex_from_whitelist_file(whitelist_file)
+    if regex:
+        pregex = regex
+    combined_regex = '^%s.*(%s).*$' % (bregex, '|'.join(
+        filter(None, [pregex, wregex])
+    ))
+
+    return combined_regex
