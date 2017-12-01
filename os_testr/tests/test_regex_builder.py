@@ -31,7 +31,7 @@ class TestPathToRegex(base.TestCase):
 class TestConstructRegex(base.TestCase):
     def test_regex_passthrough(self):
         result = os_testr.construct_regex(None, None, 'fake_regex', False)
-        self.assertEqual(result, 'fake_regex')
+        self.assertEqual(result, '^.*(fake_regex).*$')
 
     def test_blacklist_regex_with_comments(self):
         with io.StringIO() as blacklist_file:
@@ -42,8 +42,8 @@ class TestConstructRegex(base.TestCase):
                             return_value=blacklist_file):
                 result = os_testr.construct_regex(
                     'fake_path', None, None, False)
-            self.assertEqual(result, "^((?!fake_regex_3|fake_regex_2|"
-                                     "fake_regex_1|fake_regex_0).)*$")
+            self.assertEqual(result, "^(?!fake_regex_3|fake_regex_2|"
+                                     "fake_regex_1|fake_regex_0).*().*$")
 
     def test_whitelist_regex_with_comments(self):
         with io.StringIO() as whitelist_file:
@@ -56,7 +56,7 @@ class TestConstructRegex(base.TestCase):
                     None, 'fake_path', None, False)
             self.assertEqual(
                 result,
-                "fake_regex_0|fake_regex_1|fake_regex_2|fake_regex_3")
+                "^.*(fake_regex_0|fake_regex_1|fake_regex_2|fake_regex_3).*$")
 
     def test_blacklist_regex_without_comments(self):
         with io.StringIO() as blacklist_file:
@@ -67,8 +67,8 @@ class TestConstructRegex(base.TestCase):
                             return_value=blacklist_file):
                 result = os_testr.construct_regex(
                     'fake_path', None, None, False)
-            self.assertEqual(result, "^((?!fake_regex_3|fake_regex_2|"
-                                     "fake_regex_1|fake_regex_0).)*$")
+            self.assertEqual(result, "^(?!fake_regex_3|fake_regex_2|"
+                                     "fake_regex_1|fake_regex_0).*().*$")
 
     def test_blacklist_regex_with_comments_and_regex(self):
         with io.StringIO() as blacklist_file:
@@ -81,8 +81,8 @@ class TestConstructRegex(base.TestCase):
                                                   'fake_regex', False)
 
                 expected_regex = (
-                    "^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
-                    "fake_regex_0).)*$fake_regex")
+                    "^(?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                    "fake_regex_0).*(fake_regex).*$")
                 self.assertEqual(result, expected_regex)
 
     def test_blacklist_regex_without_comments_and_regex(self):
@@ -96,8 +96,8 @@ class TestConstructRegex(base.TestCase):
                                                   'fake_regex', False)
 
                 expected_regex = (
-                    "^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
-                    "fake_regex_0).)*$fake_regex")
+                    "^(?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                    "fake_regex_0).*(fake_regex).*$")
                 self.assertEqual(result, expected_regex)
 
     @mock.patch.object(os_testr, 'print_skips')
@@ -111,8 +111,8 @@ class TestConstructRegex(base.TestCase):
                 result = os_testr.construct_regex('fake_path', None,
                                                   None, True)
 
-            expected_regex = ("^((?!fake_regex_3|fake_regex_2|fake_regex_1|"
-                              "fake_regex_0).)*$")
+            expected_regex = ("^(?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                              "fake_regex_0).*().*$")
         self.assertEqual(result, expected_regex)
         calls = print_mock.mock_calls
         self.assertEqual(len(calls), 4)
@@ -133,8 +133,8 @@ class TestConstructRegex(base.TestCase):
                 result = os_testr.construct_regex('fake_path', None,
                                                   None, True)
 
-            expected_regex = ("^((?!fake_regex_3|fake_regex_2|"
-                              "fake_regex_1|fake_regex_0).)*$")
+            expected_regex = ("^(?!fake_regex_3|fake_regex_2|"
+                              "fake_regex_1|fake_regex_0).*().*$")
         self.assertEqual(result, expected_regex)
         calls = print_mock.mock_calls
         self.assertEqual(len(calls), 4)
@@ -144,9 +144,56 @@ class TestConstructRegex(base.TestCase):
         self.assertIn(('fake_regex_2', ''), args)
         self.assertIn(('fake_regex_3', ''), args)
 
+    def test_whitelist_regex_without_comments_and_regex_passthrough(self):
+        file_contents = u"""regex_a
+regex_b"""
+        with io.StringIO() as whitelist_file:
+            whitelist_file.write(file_contents)
+            whitelist_file.seek(0)
+            with mock.patch('six.moves.builtins.open',
+                            return_value=whitelist_file):
+                result = os_testr.construct_regex(None, 'fake_path',
+                                                  None, False)
 
-class TestWhitelistFile(base.TestCase):
-    def test_read_whitelist_file(self):
+                expected_regex = '^.*(regex_a|regex_b).*$'
+                self.assertEqual(result, expected_regex)
+
+    def test_whitelist_regex_without_comments_with_regex_passthrough(self):
+        file_contents = u"""regex_a
+regex_b"""
+        with io.StringIO() as whitelist_file:
+            whitelist_file.write(file_contents)
+            whitelist_file.seek(0)
+            with mock.patch('six.moves.builtins.open',
+                            return_value=whitelist_file):
+                result = os_testr.construct_regex(None, 'fake_path',
+                                                  'fake_regex', False)
+
+                expected_regex = '^.*(fake_regex|regex_a|regex_b).*$'
+                self.assertEqual(result, expected_regex)
+
+    def test_blacklist_whitelist_and_regex_passthrough_at_once(self):
+        with io.StringIO() as blacklist_file, io.StringIO() as whitelist_file:
+            for i in range(4):
+                blacklist_file.write(u'fake_regex_%s\n' % i)
+            blacklist_file.seek(0)
+            whitelist_file.write(u'regex_a\n')
+            whitelist_file.write(u'regex_b\n')
+            whitelist_file.seek(0)
+
+            with mock.patch('six.moves.builtins.open',
+                            side_effect=[blacklist_file, whitelist_file]):
+                result = os_testr.construct_regex('fake_path_1', 'fake_path_2',
+                                                  'fake_regex', False)
+
+                expected_regex = (
+                    "^(?!fake_regex_3|fake_regex_2|fake_regex_1|"
+                    "fake_regex_0).*(fake_regex|regex_a|regex_b).*$")
+                self.assertEqual(result, expected_regex)
+
+
+class TestGetRegexFromListFile(base.TestCase):
+    def test_get_regex_from_whitelist_file(self):
         file_contents = u"""regex_a
 regex_b"""
         with io.StringIO() as whitelist_file:
@@ -158,19 +205,17 @@ regex_b"""
                     '/path/to/not_used')
             self.assertEqual('regex_a|regex_b', regex)
 
-    def test_whitelist_regex_without_comments_and_regex(self):
-        file_contents = u"""regex_a
-regex_b"""
-        with io.StringIO() as whitelist_file:
-            whitelist_file.write(file_contents)
-            whitelist_file.seek(0)
+    def test_get_regex_from_blacklist_file(self):
+        with io.StringIO() as blacklist_file:
+            for i in range(4):
+                blacklist_file.write(u'fake_regex_%s\n' % i)
+            blacklist_file.seek(0)
             with mock.patch('six.moves.builtins.open',
-                            return_value=whitelist_file):
-                result = os_testr.construct_regex(None, 'fake_path',
-                                                  None, False)
-
-                expected_regex = 'regex_a|regex_b'
-                self.assertEqual(result, expected_regex)
+                            return_value=blacklist_file):
+                regex = os_testr.get_regex_from_blacklist_file(
+                    '/path/to/not_used')
+            self.assertEqual('(?!fake_regex_3|fake_regex_2'
+                             '|fake_regex_1|fake_regex_0)', regex)
 
 
 class TestGetTestList(base.TestCase):
