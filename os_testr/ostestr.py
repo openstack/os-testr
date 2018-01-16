@@ -184,7 +184,9 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
 
 def call_subunit_run(test_id, pretty, subunit):
     env = copy.deepcopy(os.environ)
-    cmd_save_results = ['testr', 'load', '--subunit']
+    cmd_save_results = ['stestr', 'load', '--subunit']
+    if not os.path.isdir('.stestr'):
+        commands.init_command()
 
     if pretty:
         # Use subunit run module

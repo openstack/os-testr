@@ -142,7 +142,7 @@ class TestCallers(base.TestCase):
             msg = "Function %s not called"
             function = ['python', '-m', 'subunit.run', 'project.tests.foo']
             self.assertIn(function, called[0][0], msg % 'subunit.run')
-            function = ['testr', 'load', '--subunit']
+            function = ['stestr', 'load', '--subunit']
             self.assertIn(function, called[1][0], msg % 'testr load')
             function = ['subunit-trace', '--no-failure-debug', '-f']
             self.assertIn(function, called[2][0], msg % 'subunit-trace')
@@ -166,7 +166,7 @@ class TestCallers(base.TestCase):
 
             # Validate Popen called the right function
             called = mock_popen.call_args
-            function = ['testr', 'load', '--subunit']
+            function = ['stestr', 'load', '--subunit']
             self.assertIn(function, called[0], "testr load not called")
 
     def test_call_subunit_run_testtools(self):
