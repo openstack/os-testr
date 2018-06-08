@@ -6,3 +6,4 @@
       - openstack-python36-jobs
       - openstack-python37-jobs
       - publish-openstack-docs-pti
+      - release-notes-jobs-python3

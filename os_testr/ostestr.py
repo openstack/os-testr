@@ -234,6 +234,10 @@ def _select_and_call_runner(opts, exclude_regex, others):
 
 
 def ostestr(args):
+    msg = ('Deprecate: ostestr command is deprecated now. Use stestr '
+           'command instead. For more information: '
+           'https://docs.openstack.org/os-testr/latest/user/ostestr.html')
+    warnings.warn(msg)
     opts, others = get_parser(args)
     if opts.pretty and opts.subunit:
         msg = ('Subunit output and pretty output cannot be specified at the '
