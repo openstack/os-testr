@@ -9,30 +9,31 @@ useful realtime output from a test run.
 
 Summary
 -------
+::
 
-subunit-trace [--fails|-f] [--failonly] [--perc-diff|-d] [--no-summary]
-              [--diff-threshold|-t <threshold>] [--color]
+   subunit-trace [--fails|-f] [--failonly] [--perc-diff|-d] [--no-summary]
+                 [--diff-threshold|-t <threshold>] [--color]
 
 Options
 -------
 
-  --no-failure-debug, -n
-                        Disable printing failure debug information in realtime
-  --fails, -f
-                        Print failure debug information after the stream is
-                        processed
-  --failonly
-                        Don't print success items
-  --perc-diff, -d
-                        Print percent change in run time on each test
-  --diff-threshold THRESHOLD, -t THRESHOLD
-                        Threshold to use for displaying percent change from the
-                        avg run time. If one is not specified the percent
-                        change will always be displayed.
-  --no-summary
-                        Don't print the summary of the test run after completes
-  --color
-                        Print result with colors
+--no-failure-debug, -n
+                      Disable printing failure debug information in realtime
+--fails, -f
+                      Print failure debug information after the stream is
+                      processed
+--failonly
+                      Don't print success items
+--perc-diff, -d
+                      Print percent change in run time on each test
+--diff-threshold THRESHOLD, -t THRESHOLD
+                      Threshold to use for displaying percent change from the
+                      avg run time. If one is not specified the percent
+                      change will always be displayed.
+--no-summary
+                      Don't print the summary of the test run after completes
+--color
+                      Print result with colors
 
 Usage
 -----
