@@ -587,15 +587,15 @@ class HtmlOutput(testtools.TestResult):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = TemplateData.REPORT_CLASS_TMPL % dict(
-                style=(ne > 0 and 'errorClass' or nf > 0
-                       and 'failClass' or 'passClass'),
-                desc = desc,
-                count = np + nf + ne + ns,
-                Pass = np,
-                fail = nf,
-                error = ne,
-                skip = ns,
-                cid = 'c%s' % (cid + 1),
+                style=(ne > 0 and 'errorClass' or nf > 0 and
+                       'failClass' or 'passClass'),
+                desc=desc,
+                count=np + nf + ne + ns,
+                Pass=np,
+                fail=nf,
+                error=ne,
+                skip=ns,
+                cid='c%s' % (cid + 1),
             )
             rows.append(row)
 
@@ -677,8 +677,8 @@ class HtmlOutput(testtools.TestResult):
         else:
             doc = None
         desc = doc and ('%s: %s' % (name, doc)) or name
-        tmpl = (has_output and TemplateData.REPORT_TEST_WITH_OUTPUT_TMPL
-                or TemplateData.REPORT_TEST_NO_OUTPUT_TMPL)
+        tmpl = (has_output and TemplateData.REPORT_TEST_WITH_OUTPUT_TMPL or
+                TemplateData.REPORT_TEST_NO_OUTPUT_TMPL)
 
         script = TemplateData.REPORT_TEST_OUTPUT_TMPL % dict(
             id=tid,

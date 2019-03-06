@@ -62,7 +62,9 @@ class TestCallers(base.TestCase):
             return 'project.tests.foo' in args
 
         with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
-                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'get_parser',
+                                  return_value=namespace), \
                 mock.patch.object(os_testr,
                                   'call_subunit_run',
                                   side_effect=_fake_run):
@@ -78,7 +80,9 @@ class TestCallers(base.TestCase):
             return 'project.tests.foo' in args
 
         with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
-                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'get_parser',
+                                  return_value=namespace), \
                 mock.patch.object(os_testr,
                                   'call_subunit_run',
                                   side_effect=_fake_run):
@@ -94,7 +98,9 @@ class TestCallers(base.TestCase):
             return 'project.tests.foo' in args
 
         with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
-                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'get_parser',
+                                  return_value=namespace), \
                 mock.patch.object(os_testr,
                                   'call_subunit_run',
                                   side_effect=_fake_run):
@@ -110,7 +116,9 @@ class TestCallers(base.TestCase):
             return 'project.tests.foo' in args
 
         with mock.patch.object(os_testr, 'exit', side_effect=_fake_exit), \
-                mock.patch.object(os_testr, 'get_parser', return_value=namespace), \
+                mock.patch.object(os_testr,
+                                  'get_parser',
+                                  return_value=namespace), \
                 mock.patch.object(os_testr,
                                   'call_subunit_run',
                                   side_effect=_fake_run):
