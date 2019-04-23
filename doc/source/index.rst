@@ -13,7 +13,7 @@ A testr wrapper to provide functionality for OpenStack projects.
 
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/os-testr/
-* Source: https://git.openstack.org/cgit/openstack/os-testr
+* Source: https://opendev.org/openstack/os-testr
 * Bugs: https://bugs.launchpad.net/os-testr
 
 Contents
