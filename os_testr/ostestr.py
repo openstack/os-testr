@@ -144,8 +144,8 @@ def call_testr(regex, subunit, pretty, list_tests, slowest, parallel, concur,
     group_regex = None
     if not os.path.isfile('.stestr.conf') and os.path.isfile('.testr.conf'):
         msg = ('No .stestr.conf file found in the CWD. Please create one to '
-               'to replace the .testr.conf. You can find a script to do this '
-               'in the stestr git repository.')
+               'replace the .testr.conf file. You can find a script to do '
+               'this in the stestr git repository.')
         warnings.warn(msg)
 
         test_dir, top_dir, group_regex = _parse_testrconf()
