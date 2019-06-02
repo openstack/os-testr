@@ -91,6 +91,7 @@ def get_parser(args):
     parallel.add_argument('--serial', dest='parallel', action='store_false',
                           help='Run tests serially')
     parser.add_argument('--concurrency', '-c', type=int, metavar='WORKERS',
+                        default=0,
                         help='The number of workers to use when running in '
                              'parallel. By default this is the number of cpus')
     parser.add_argument('--until-failure', action='store_true',
