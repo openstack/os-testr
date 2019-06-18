@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    The ``ostestr`` command is now deprecated explicitly. We already switched
+    to use ``stestr`` command instead. And we haven't maintained this command
+    recently. For more information about stestr, see
+    https://stestr.readthedocs.io/en/latest/

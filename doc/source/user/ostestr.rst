@@ -3,6 +3,19 @@
 ostestr
 =======
 
+.. warning::
+   ``ostestr`` command is deprecated. Use `stestr`_ command instead like
+   following.
+
+   0. Install `stestr`_ (This step is already done if you're using ostestr.)
+   1. You can use ``stestr run ...`` instead of ``ostestr ...``
+   2. You can use ``stestr list ...`` instead of `ostestr --list ...``
+
+   For more sub commands and options, please refer to `stestr help` or the
+   `stestr`_ document.
+
+.. _stestr: https://stestr.readthedocs.io/
+
 The ostestr command provides a wrapper around the testr command included in
 the testrepository package. It's designed to build on the functionality
 included in testr and workaround several UI bugs in the short term. By default
