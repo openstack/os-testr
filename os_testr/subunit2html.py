@@ -53,6 +53,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+import codecs
 import collections
 import datetime
 import io
@@ -680,9 +681,16 @@ class HtmlOutput(testtools.TestResult):
         tmpl = (has_output and TemplateData.REPORT_TEST_WITH_OUTPUT_TMPL or
                 TemplateData.REPORT_TEST_NO_OUTPUT_TMPL)
 
+        try:
+            output = saxutils.escape(o + e)
+        # We expect to get this exception in python2.
+        except UnicodeDecodeError:
+            e = codecs.decode(e, 'utf-8')
+            output = saxutils.escape(o + e)
+
         script = TemplateData.REPORT_TEST_OUTPUT_TMPL % dict(
             id=tid,
-            output=saxutils.escape(o + e),
+            output=output,
         )
 
         row = tmpl % dict(

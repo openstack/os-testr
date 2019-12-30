@@ -76,3 +76,17 @@ class TestSubunit2html(base.TestCase):
                                 'example.path.to.test8']
         for i, r in enumerate(sorted_result):
             self.assertEqual(expected_class_order[i], str(r[0]))
+
+    @data(RemotedTestCase, PlaceHolder)
+    def test_generate_report_with_no_ascii_characters(self, test_cls):
+        # The test examines a case where an error containing no ascii
+        # characters is received.
+        test = test_cls(u'example.path.to.test1.method')
+        try:
+            raise Exception('\xe2\x82\xa5')
+        except Exception:
+            err = sys.exc_info()
+        obj = subunit2html.HtmlOutput()
+        # Add failure that contains no ascii characters
+        obj.addFailure(test, err)
+        obj._generate_report()
