@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Python 2.7 support has been dropped. Last release of os-testr
+    to support python 2.7 is 1.1.0. The minimum version of Python now
+    supported by os-testr is Python 3.6.
