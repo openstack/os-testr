@@ -209,7 +209,7 @@ test_command=OS_STDOUT_CAPTURE=${OS_STDOUT_CAPTURE:-1} \
              $LISTOPT $IDOPTION
 test_id_option=--load-list $IDFILE
 test_list_option=--list
-group_regex=([^\.]+\.)+
+group_regex=([^\\.]+\\.)+
 """
         with io.StringIO() as testrconf_data_file:
             testrconf_data_file.write(testrconf_data)
@@ -221,7 +221,7 @@ group_regex=([^\.]+\.)+
                 # validate the discovery of the options from the legacy
                 # .testr.conf
                 self.assertEqual(parsed_values, ('mytestdir', None,
-                                                 '([^\.]+\.)+'))
+                                                 r'([^\.]+\.)+'))
 
     def test_parse_legacy_testrconf_topdir(self):
         '''Test parse_testrconf
@@ -238,7 +238,7 @@ test_command=OS_STDOUT_CAPTURE=${OS_STDOUT_CAPTURE:-1} \
              $LISTOPT $IDOPTION
 test_id_option=--load-list $IDFILE
 test_list_option=--list
-group_regex=([^\.]+\.)+
+group_regex=([^\\.]+\\.)+
 """
         with io.StringIO() as testrconf_data_file:
             testrconf_data_file.write(testrconf_data)
@@ -250,4 +250,4 @@ group_regex=([^\.]+\.)+
                 # validate the discovery of the options from the legacy
                 # .testr.conf
                 self.assertEqual(parsed_values, ('mytestdir', '..',
-                                                 '([^\.]+\.)+'))
+                                                 r'([^\.]+\.)+'))
