@@ -15,6 +15,7 @@ A testr wrapper to provide functionality for OpenStack projects.
 * Documentation: https://docs.openstack.org/os-testr/
 * Source: https://opendev.org/openstack/os-testr
 * Bugs: https://bugs.launchpad.net/os-testr
+* Contributing: If you are a new contributor to os-testr please refer: :doc:`contributor/contributing`
 
 Contents
 ========
@@ -23,8 +24,12 @@ Contents
    :maxdepth: 2
 
    install/index
-   contributor/index
    user/index
+
+.. toctree::
+   :hidden:
+
+   contributor/contributing
 
 Indices and tables
 ==================
