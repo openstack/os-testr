@@ -46,12 +46,10 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/os-testr'
-bug_project = 'os-testr'
-bug_tag = ''
-
-# Must set this variable to include year, month, day, hours, and minutes.
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
+openstackdocs_repo_name = 'openstack/os-testr'
+openstackdocs_auto_name = False
+openstackdocs_bug_project = 'os-testr'
+openstackdocs_bug_tag = ''
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -78,7 +76,7 @@ version = ''
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # -- Options for HTML output -------------------------------------------------
 
