@@ -19,7 +19,7 @@ test_os_testr
 Tests for `os_testr` module.
 """
 import io
-import mock
+from unittest import mock
 
 from os_testr import ostestr as os_testr
 from os_testr.tests import base

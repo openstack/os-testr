@@ -18,11 +18,11 @@ import io
 import os
 import subprocess
 import sys
+from unittest.mock import patch
 
 from ddt import data
 from ddt import ddt
 from ddt import unpack
-from mock import patch
 import six
 
 from os_testr import subunit_trace

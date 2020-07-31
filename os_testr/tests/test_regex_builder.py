@@ -13,7 +13,7 @@
 # under the License.
 
 import io
-import mock
+from unittest import mock
 
 from os_testr import regex_builder as os_testr
 from os_testr.tests import base
