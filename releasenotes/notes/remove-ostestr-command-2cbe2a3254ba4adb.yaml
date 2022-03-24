@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The deprecated ``ostestr`` command is now removed. This has been
+    deprecated for more than a year and most of the users have been
+    switched to ``stestr`` command. For more information about stestr,
+    see https://stestr.readthedocs.io/en/latest/
