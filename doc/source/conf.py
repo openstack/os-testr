@@ -45,8 +45,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'os-testr'
-copyright = u'2015, Matthew Treinish'
+project = 'os-testr'
+copyright = '2015, Matthew Treinish'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -79,8 +79,8 @@ htmlhelp_basename = '%sdoc' % project
 latex_documents = [
     ('index',
      '%s.tex' % project,
-     u'%s Documentation' % project,
-     u'Matthew Treinish', 'manual'),
+     '%s Documentation' % project,
+     'Matthew Treinish', 'manual'),
 ]
 
 man_pages = [('ostestr', 'ostestr', 'tooling to run OpenStack tests',
@@ -99,8 +99,8 @@ man_pages = [('ostestr', 'ostestr', 'tooling to run OpenStack tests',
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-   ('index', 'doc-os-testr.tex', u'Os-testr',
-    u'OpenStack Foundation', 'manual'),
+   ('index', 'doc-os-testr.tex', 'Os-testr',
+    'OpenStack Foundation', 'manual'),
 ]
 
 # Disable usage of xindy https://bugzilla.redhat.com/show_bug.cgi?id=1643664

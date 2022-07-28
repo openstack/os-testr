@@ -81,7 +81,7 @@ class TestSubunit2html(base.TestCase):
     def test_generate_report_with_no_ascii_characters(self, test_cls):
         # The test examines a case where an error containing no ascii
         # characters is received.
-        test = test_cls(u'example.path.to.test1.method')
+        test = test_cls('example.path.to.test1.method')
         try:
             raise Exception('\xe2\x82\xa5')
         except Exception:
