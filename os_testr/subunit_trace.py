@@ -27,6 +27,7 @@ import sys
 
 import pbr.version
 import subunit
+from subunit import test_results
 import testtools
 
 from os_testr.utils import colorizer
@@ -364,7 +365,7 @@ def trace(stdin, stdout, print_failures=False, failonly=False,
     summary = testtools.StreamSummary()
     result = testtools.CopyStreamResult([outcomes, summary])
     result = testtools.StreamResultRouter(result)
-    cat = subunit.test_results.CatFiles(stdout)
+    cat = test_results.CatFiles(stdout)
     result.add_rule(cat, 'test_id', test_id=None)
     start_time = datetime.datetime.utcnow()
     result.startTestRun()
