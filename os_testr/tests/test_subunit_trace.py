@@ -23,7 +23,6 @@ from unittest.mock import patch
 from ddt import data
 from ddt import ddt
 from ddt import unpack
-import six
 
 from os_testr import subunit_trace
 from os_testr.tests import base
@@ -89,7 +88,7 @@ class TestSubunitTrace(base.TestCase):
             'sample_streams/successful.subunit')
         bytes_ = io.BytesIO()
         with open(regular_stream, 'rb') as stream:
-            bytes_.write(six.binary_type(stream.read()))
+            bytes_.write(bytes(stream.read()))
         bytes_.seek(0)
         stdin = io.TextIOWrapper(io.BufferedReader(bytes_))
         returncode = subunit_trace.trace(stdin, sys.stdout)

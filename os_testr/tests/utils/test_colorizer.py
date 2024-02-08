@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import six
+import io
 import sys
 
 from ddt import data
@@ -34,7 +34,7 @@ class TestNullColorizer(base.TestCase):
     @data(("foo", "red"), ("foo", "bar"))
     @unpack
     def test_write_string_ignore_color(self, text, color):
-        output = six.StringIO()
+        output = io.StringIO()
         c = colorizer.NullColorizer(output)
         c.write(text, color)
         self.assertEqual(text, output.getvalue())
@@ -62,7 +62,7 @@ class TestAnsiColorizer(base.TestCase):
     @data(("foo", "red", "31"), ("foo", "blue", "34"))
     @unpack
     def test_write_string_valid_color(self, text, color, color_code):
-        output = six.StringIO()
+        output = io.StringIO()
         c = colorizer.AnsiColorizer(output)
         c.write(text, color)
         self.assertIn(text, output.getvalue())
@@ -71,6 +71,6 @@ class TestAnsiColorizer(base.TestCase):
     @data(("foo", None), ("foo", "invalid_color"))
     @unpack
     def test_write_string_invalid_color(self, text, color):
-        output = six.StringIO()
+        output = io.StringIO()
         c = colorizer.AnsiColorizer(output)
         self.assertRaises(KeyError, c.write, text, color)
