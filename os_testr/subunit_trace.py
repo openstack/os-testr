@@ -367,13 +367,13 @@ def trace(stdin, stdout, print_failures=False, failonly=False,
     result = testtools.StreamResultRouter(result)
     cat = test_results.CatFiles(stdout)
     result.add_rule(cat, 'test_id', test_id=None)
-    start_time = datetime.datetime.utcnow()
+    start_time = datetime.datetime.now(datetime.timezone.utc)
     result.startTestRun()
     try:
         stream.run(result)
     finally:
         result.stopTestRun()
-    stop_time = datetime.datetime.utcnow()
+    stop_time = datetime.datetime.now(datetime.timezone.utc)
     elapsed_time = stop_time - start_time
 
     if count_tests('status', '.*') == 0:
